@@ -8,6 +8,18 @@
     <file url="file://$PROJECT_DIR$/tanghao-lcn-demo/tanghao-lcn-busi" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/tanghao-lcn-demo/tanghao-lcn-order" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/tanghao-learning-test" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbit-java-client" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-demo" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-demo/tanghao-rabbit-java-client" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-demo/tanghao-rabbit-springboot-cluster" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning/tanghao-rabbit-client-java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning/tanghao-rabbit-client-java/src/main/java/com/tanghao/rabbit/learn/java/client/Recv.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning/tanghao-rabbit-client-java/src/main/java/com/tanghao/rabbit/learn/java/client/Send.java" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning/tanghao-rabbit-client-spring" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning/tanghao-rabbit-client-springboot" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning/tanghao-rabbit-client-springcloud" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/tanghao-rabbitmq-learning/tanghao-rabbit-cluster-spring" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/tanghao-tx-manager" charset="UTF-8" />
   </component>
 </project>
