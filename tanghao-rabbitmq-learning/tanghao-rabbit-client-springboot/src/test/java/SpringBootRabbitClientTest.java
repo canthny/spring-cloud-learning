@@ -1,4 +1,5 @@
 import com.tanghao.rabbit.learn.springboot.client.SpringBootRabbitCilentStarter;
+import com.tanghao.rabbit.learn.springboot.client.domain.OrderSucMsg;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -8,6 +9,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Date;
 
 
 /**
@@ -44,15 +47,30 @@ public class SpringBootRabbitClientTest {
     public void deleteQueue(){
         amqpAdmin.deleteQueue(orderSucMsgSendQueue.getName());
         amqpAdmin.deleteQueue(orderSucProceedQueue.getName());
+        amqpAdmin.deleteQueue("th_direct_Q1");
+        amqpAdmin.deleteQueue("order_suc_msg_send");
     }
 
     @Test
     public void deleteExchange(){
         amqpAdmin.deleteExchange(orderSuccessExchange.getName());
+        amqpAdmin.deleteExchange("direct_exchange");
     }
 
     @Test
-    public void sendTopicMsg(){
+    public void sendTopicMsgString(){
         rabbitTemplate.convertAndSend("order_suc_exchange","order.suc","test send msg by topic exchange");
+    }
+
+    /**
+     * 发送消息对象，对象实现Serializable即可
+     */
+    @Test
+    public void sendTopicMsgObject(){
+        OrderSucMsg obj = new OrderSucMsg();
+        obj.setPayOrderNo("00000001");
+        obj.setStatus("1");
+        obj.setSucTime(new Date());
+        rabbitTemplate.convertAndSend("order_suc_exchange","order.suc",obj);
     }
 }

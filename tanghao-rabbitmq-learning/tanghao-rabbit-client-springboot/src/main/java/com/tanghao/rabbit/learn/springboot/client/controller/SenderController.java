@@ -16,13 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class SenderController {
 
     @Autowired
-    AmqpTemplate amqpTemplate;
+    AmqpTemplate rabbitTemplate;
     @Autowired
     AmqpAdmin amqpAdmin;
 
     @RequestMapping(value = "/send")
     public String send(){
-//        amqpTemplate.convertAndSend();
+        /**
+         * channel.basicPublish() MessageProperties 关键属性deliveryMode = 2时消息持久化，需要消费者ack后才会删除，spring整合的时候默认打开持久化；
+         */
+        rabbitTemplate.convertAndSend("order_suc_exchange","order.suc","test send msg by topic exchange");
         return "success";
     }
 }
