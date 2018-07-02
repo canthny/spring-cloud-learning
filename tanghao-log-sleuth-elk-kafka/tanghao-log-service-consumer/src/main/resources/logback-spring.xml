@@ -7,7 +7,8 @@
                     source="spring.application.name" />
 
     <!-- 日志在工程中的输出位置 -->
-    <property name="LOG_FILE" value="/var/logs/${springAppName}" />
+    <property name="LOG_FILE" value="D://logs/${springAppName}" />
+    <property name="MICRO_SERVICE_MONITOR_FILE" value="D://logs/ms_monitor" />
 
     <!-- 控制台的日志输出样式 -->
     <property name="CONSOLE_LOG_PATTERN"
@@ -39,13 +40,12 @@
         <encoder
                 class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
-                <timestamp>
-                    <timeZone>UTC</timeZone>
-                </timestamp>
                 <pattern>
                     <pattern>
                         {
-                        "severity": "%level",
+                        "yzt_log_type":"MC-TRACE",
+                        "timestamp":"%date{yyyy-MM-dd HH:mm:ss.SSS}",
+                        "log_level": "%level",
                         "service": "${springAppName:-}",
                         "trace": "%X{X-B3-TraceId:-}",
                         "span": "%X{X-B3-SpanId:-}",
@@ -62,9 +62,86 @@
         </encoder>
     </appender>
 
+    <appender name="microServiceMonitorAop"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${MICRO_SERVICE_MONITOR_FILE}.json</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <fileNamePattern>${MICRO_SERVICE_MONITOR_FILE}.json.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <!--日志文件保留天数 -->
+            <MaxHistory>3</MaxHistory>
+        </rollingPolicy>
+        <!-- 日志输出编码 -->
+        <encoder
+                class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+                <pattern>
+                    <pattern>
+                        {
+                        "yzt_log_type": "MC-TRACE",
+                        "application_name": "${springAppName:-}",
+                        "application_ip": "%X{X-LOCAL-IP}",
+                        "level": "%level",
+                        "pid": "${PID:-}",
+                        "thread": "%thread",
+                        "class": "%logger",
+                        "method": "%X{X-METHOD}",
+                        "service_name": "%X{X-MC-TRACE-SERVICE-NAME}",
+                        "log_time": "%date{yyyy-MM-dd HH:mm:ss.SSS}",
+                        "request_time": "%X{X-MC-TRACE-REQUEST-TIME}",
+                        "response_time": "%X{X-MC-TRACE-RESPONSE-TIME}",
+                        "excute_time": "%X{X-MC-TRACE-EXCUTE-TIME}",
+                        "extension": "%message"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+        <!-- 日志输出编码 -->
+    </appender>
+
+    <!--<property name="printFormatType" value="${log.config.print.format.type:-JSON}" />-->
+    <!--<appender name="APP" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<file>${LOG_FILE}/app.log</file>-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+            <!--&lt;!&ndash; 按天回滚 daily 让每天产生一个日志文件，最多 60 个，自动回滚 &ndash;&gt;-->
+            <!--<fileNamePattern>${LOG_FILE}/app-%d{yyyy-MM-dd}-%i.log</fileNamePattern>-->
+            <!--&lt;!&ndash; 日志最大的历史 60天 &ndash;&gt;-->
+            <!--<maxHistory>${log.config.maxHistory:-0}</maxHistory>-->
+            <!--&lt;!&ndash; 限制日志文件大小，所有日志总大小, 超出之后会先删除较旧的日志 &ndash;&gt;-->
+            <!--<totalSizeCap>${log.config.totalSizeCap:-0}</totalSizeCap>-->
+            <!--&lt;!&ndash; 限制日志文件大小, 单个日志文件大小 &ndash;&gt;-->
+            <!--<maxFileSize>${log.config.maxFileSize:-300MB}</maxFileSize>-->
+        <!--</rollingPolicy>-->
+        <!--&lt;!&ndash; encoder 可以指定字符集，对于中文输出有意义 &ndash;&gt;-->
+        <!--<if condition='"JSON".equalsIgnoreCase(p("printFormatType"))'>-->
+            <!--<then>-->
+                <!--<encoder charset="UTF-8" class="tanghao.log.trace.sleuth.clk.consumer.slf4j.encoder.PsbcCustomJsonLoggerPatternLayoutEncoder">-->
+                    <!--<pattern>%psbcCustomJsonLoggerPattern{${contextName}} %n</pattern>-->
+                <!--</encoder>-->
+            <!--</then>-->
+            <!--<else>-->
+                <!--<encoder charset="UTF-8" class="tanghao.log.trace.sleuth.clk.consumer.slf4j.encoder.PsbcCustomJsonLoggerPatternLayoutEncoder">-->
+                    <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %c#%M:%L - %msg%n</pattern>-->
+                <!--</encoder>-->
+            <!--</else>-->
+        <!--</if>-->
+    <!--</appender>-->
     <!-- 日志输出级别 -->
     <root level="INFO">
         <appender-ref ref="console" />
-        <appender-ref ref="logstash" />
+        <!--<appender-ref ref="logstash" />-->
     </root>
+    <logger name="tanghao.log.trace.sleuth.clk.consumer.aop.MicroServiceMonitorAop" level="INFO">
+        <appender-ref ref="microServiceMonitorAop" />
+    </logger>
+
+    <!--<root level="${log.common.level:-INFO}">-->
+        <!--<appender-ref ref="APP"/>-->
+    <!--</root>-->
+
+
 </configuration>

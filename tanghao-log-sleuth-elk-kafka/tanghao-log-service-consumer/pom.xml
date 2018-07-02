@@ -33,6 +33,18 @@
             <artifactId>logstash-logback-encoder</artifactId>
             <version>4.6</version>
         </dependency>
+        <!-- log -->
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>3.0.7</version>
+        </dependency>
+        <!-- log -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.34</version>
+        </dependency>
     </dependencies>
 
 </project>

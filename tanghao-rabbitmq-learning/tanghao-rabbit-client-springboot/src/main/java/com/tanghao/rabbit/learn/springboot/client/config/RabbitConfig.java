@@ -63,7 +63,7 @@ public class RabbitConfig {
     }
 
     @Bean
-    public SimpleMessageListenerContainer OrderSucMsgSendMessageContainer(CachingConnectionFactory cachingConnectionFactory){
+    public SimpleMessageListenerContainer orderSucMsgSendMessageContainer(CachingConnectionFactory cachingConnectionFactory){
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(cachingConnectionFactory);
         container.setQueues(orderSucMsgSendQueue());
         container.setAcknowledgeMode(AcknowledgeMode.MANUAL);
@@ -72,7 +72,7 @@ public class RabbitConfig {
     }
 
     @Bean
-    public SimpleMessageListenerContainer OrderSucProcessMessageContainer(CachingConnectionFactory cachingConnectionFactory){
+    public SimpleMessageListenerContainer orderSucProcessMessageContainer(CachingConnectionFactory cachingConnectionFactory){
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(cachingConnectionFactory);
         container.setQueues(orderSucProceedQueue());
         container.setAcknowledgeMode(AcknowledgeMode.MANUAL);

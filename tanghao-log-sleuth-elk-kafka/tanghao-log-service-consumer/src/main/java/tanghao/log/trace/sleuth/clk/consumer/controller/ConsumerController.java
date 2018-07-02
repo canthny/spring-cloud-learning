@@ -27,8 +27,8 @@ public class ConsumerController {
     }
 
     @RequestMapping(value = "/consumer")
-    public String provider(){
-        logger.info("trace span in ProviderController");
+    public String consumer(){
+        logger.info("trace span in ConsumerController");
         String result = restTemplate.getForObject("http://localhost:8081/provider",String.class);
         logger.info(result);
         return "consumer is done!";

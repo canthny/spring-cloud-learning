@@ -8,7 +8,7 @@
 
     <!-- 日志在工程中的输出位置 -->
     <!--<property name="LOG_FILE" value="${BUILD_FOLDER:-build}/${springAppName}" />-->
-    <property name="LOG_FILE" value="/var/logs/${springAppName}" />
+    <property name="LOG_FILE" value="D://logs/${springAppName}" />
     <!-- 控制台的日志输出样式 -->
     <property name="CONSOLE_LOG_PATTERN"
               value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
