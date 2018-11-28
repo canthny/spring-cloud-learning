@@ -87,13 +87,13 @@
                         "level": "%level",
                         "pid": "${PID:-}",
                         "thread": "%thread",
-                        "class": "%logger",
+                        "class": "%X{X-CLASS}",
                         "method": "%X{X-METHOD}",
                         "service_name": "%X{X-MC-TRACE-SERVICE-NAME}",
                         "log_time": "%date{yyyy-MM-dd HH:mm:ss.SSS}",
                         "request_time": "%X{X-MC-TRACE-REQUEST-TIME}",
                         "response_time": "%X{X-MC-TRACE-RESPONSE-TIME}",
-                        "excute_time": "%X{X-MC-TRACE-EXCUTE-TIME}",
+                        "excute_time": "#asLong{%X{X-MC-TRACE-EXCUTE-TIME}}",
                         "extension": "%message"
                         }
                     </pattern>
@@ -135,7 +135,7 @@
         <appender-ref ref="console" />
         <!--<appender-ref ref="logstash" />-->
     </root>
-    <logger name="tanghao.log.trace.sleuth.clk.consumer.aop.MicroServiceMonitorAop" level="INFO">
+    <logger name="tanghao.log.trace.sleuth.clk.consumer.aop.MicroServiceMonitorAop">
         <appender-ref ref="microServiceMonitorAop" />
     </logger>
 

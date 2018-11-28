@@ -15,4 +15,5 @@ public class OrderSucMsgSendListener implements ChannelAwareMessageListener {
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         System.out.println(new String(message.getBody()));
     }
+
 }

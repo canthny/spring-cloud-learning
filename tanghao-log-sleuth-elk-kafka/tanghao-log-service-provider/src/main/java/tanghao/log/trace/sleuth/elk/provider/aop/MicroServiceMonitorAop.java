@@ -1,7 +1,5 @@
-package tanghao.log.trace.sleuth.clk.consumer.aop;
+package tanghao.log.trace.sleuth.elk.provider.aop;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -11,16 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import tanghao.log.trace.sleuth.clk.consumer.annotation.MicroServiceMonitor;
-import tanghao.log.trace.sleuth.clk.consumer.log.LogConstant;
+import tanghao.log.trace.sleuth.elk.provider.annotation.MicroServiceMonitor;
+import tanghao.log.trace.sleuth.elk.provider.log.LogConstant;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * @Author： Canthny
@@ -47,17 +42,17 @@ public class MicroServiceMonitorAop {
         }
     }
 
-    @Pointcut("@annotation(tanghao.log.trace.sleuth.clk.consumer.annotation.MicroServiceMonitor)")
+    @Pointcut("@annotation(tanghao.log.trace.sleuth.elk.provider.annotation.MicroServiceMonitor)")
     private void doMcTraceLog() {}
 
     @Around("doMcTraceLog()&&@annotation(microServiceMonitor)")
-    public void around(ProceedingJoinPoint pjp,MicroServiceMonitor microServiceMonitor) throws Throwable {
+    public Object around(ProceedingJoinPoint pjp,MicroServiceMonitor microServiceMonitor) throws Throwable {
 
         Class clazz = pjp.getTarget().getClass();//得到当前执行的类
         String className = pjp.getSignature().getDeclaringTypeName();
         String methodName = pjp.getSignature().getName();//得到执行的方法
         Date beginTime = new Date();
-        pjp.proceed();
+        Object obj = pjp.proceed();
         Date endTime = new Date();
         String excuteTime = String.valueOf(endTime.getTime() - beginTime.getTime());
 
@@ -77,6 +72,7 @@ public class MicroServiceMonitorAop {
         MDC.remove(LogConstant.X_MC_TRACE_EXCUTE_TIME);
         MDC.remove(LogConstant.X_MC_TRACE_REQUEST_TIME);
         MDC.remove(LogConstant.X_MC_TRACE_RESPONSE_TIME);
+        return obj;
 //        JSONObject json = new JSONObject();
 //        json.put("className",className);
 //        json.put("methodName",methodName);

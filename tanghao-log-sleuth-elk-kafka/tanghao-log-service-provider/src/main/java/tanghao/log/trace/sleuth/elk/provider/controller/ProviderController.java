@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import tanghao.log.trace.sleuth.elk.provider.annotation.MicroServiceMonitor;
 
 /**
  * @Author： Canthny
@@ -27,6 +28,7 @@ public class ProviderController {
     }
 
     @RequestMapping(value = "/provider")
+    @MicroServiceMonitor(serverName = "充值服务")
     public String provider(){
         logger.info("trace span in ProviderController");
         return "provider is done!";

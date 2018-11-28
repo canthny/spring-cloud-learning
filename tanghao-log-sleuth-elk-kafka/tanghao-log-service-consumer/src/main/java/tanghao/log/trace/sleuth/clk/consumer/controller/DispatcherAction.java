@@ -22,7 +22,8 @@ public class DispatcherAction {
 
     @RequestMapping(value = "/service")
     public String service(){
-        depositManager.deposit();
+        String test = depositManager.deposit();
+        logger.info(test);
         logger.info("service is done!");
         return "service is done!";
     }

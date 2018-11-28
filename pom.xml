@@ -13,7 +13,8 @@
 		<module>tanghao-lcn-demo</module>
 		<module>tanghao-rabbitmq-learning</module>
 		<module>tanghao-log-sleuth-elk-kafka</module>
-	</modules>
+        <module>tanghao-kafka-demo</module>
+    </modules>
 	<packaging>pom</packaging>
 
 	<name>tanghao-demo-root</name>

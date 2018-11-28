@@ -21,7 +21,7 @@ public class DemoApplication {
     @Bean
     public HessianProxyFactoryBean helloClient() {
         HessianProxyFactoryBean factory = new HessianProxyFactoryBean();
-        factory.setServiceUrl("http://127.0.0.1:9464/ipad/remoting/commonicgbPaymentService.hessian");
+        factory.setServiceUrl("http://192.168.1.105:9464/ipad/remoting/commonBankConnectService.hessian");
         factory.setServiceInterface(WithdrawDepositHessianService.class);
         return factory;
     }
