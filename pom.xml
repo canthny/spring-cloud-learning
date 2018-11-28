@@ -8,13 +8,14 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<modules>
 		<module>tanghao-eureka-server</module>
-		<module>tanghao-tx-manager</module>
 		<module>tanghao-learning-test</module>
 		<module>tanghao-lcn-demo</module>
 		<module>tanghao-rabbitmq-learning</module>
-		<module>tanghao-log-sleuth-elk-kafka</module>
+		<module>tanghao-log-sleuth-zipkin</module>
         <module>tanghao-kafka-demo</module>
+		<module>tanghao-redis</module>
     </modules>
+
 	<packaging>pom</packaging>
 
 	<name>tanghao-demo-root</name>

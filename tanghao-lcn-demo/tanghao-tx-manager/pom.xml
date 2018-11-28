@@ -11,8 +11,8 @@
     <name>tx-manager</name>
     <description>tx-manager</description>
 
-     <parent>
-        <artifactId>tanghao-demo-root</artifactId>
+    <parent>
+        <artifactId>tanghao-lcn-demo</artifactId>
         <groupId>com.tanghao.springcloud.demo</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
