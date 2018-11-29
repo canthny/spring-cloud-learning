@@ -10,16 +10,17 @@ public class VolatileTest {
 //    private static volatile boolean flag;
     private static boolean flag;
 
-//    private static int count=0;
+    private static long count=0;
 
     public static void main(String[] args) throws InterruptedException {
         new TestThread().start();
         while(!flag){
-//            Thread.yield();
-//            count++;
+            //TODO why？这里如果用了sleep，唤醒后貌似会重新加载主存中的变量值，不加volatile也可见
+//            Thread.sleep(100);
+            count++;
         }
         System.out.println("get out of while");
-//        System.out.println("count = "+count);
+        System.out.println("count = "+count);
     }
 
     static class TestThread extends Thread{
