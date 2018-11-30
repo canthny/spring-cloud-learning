@@ -13,8 +13,9 @@ public class ThreadLocalTest {
         this.count.set(100L);
     }
 
-    public long getValue(){
-        return count.get();
+    public Long getValue(){
+        Long tep = count.get();
+        return tep;
     }
 
     public void plus(){
@@ -25,14 +26,14 @@ public class ThreadLocalTest {
     public static void main(String[] args) {
         final ThreadLocalTest threadLocalTest = new ThreadLocalTest();
         threadLocalTest.init();
-        System.out.println(threadLocalTest.getValue());
+        System.out.println("Thread:"+Thread.currentThread().getName()+"|count ="+threadLocalTest.getValue());
 
         Thread t = new Thread(){
             public void run(){
-                threadLocalTest.init();
-                long temp = threadLocalTest.getValue();
+//                threadLocalTest.init();
+                System.out.println("Thread:"+Thread.currentThread().getName()+"|count ="+threadLocalTest.getValue());
                 threadLocalTest.plus();
-                System.out.println(threadLocalTest.getValue());
+                System.out.println("Thread:"+Thread.currentThread().getName()+"|count ="+threadLocalTest.getValue());
             };
         };
 
@@ -44,6 +45,6 @@ public class ThreadLocalTest {
             e.printStackTrace();
         }
 
-        System.out.println(threadLocalTest.getValue());
+        System.out.println("Thread:"+Thread.currentThread().getName()+"|count ="+threadLocalTest.getValue());
     }
 }
