@@ -13,6 +13,7 @@ import tanghao.learning.test.spring.framework.service.TestServiceA;
  * @Description： XmlBeanFactory学习
  * @Date： Created in 2018/12/3 19:55
  */
+@Deprecated
 @RunWith(SpringJUnit4ClassRunner.class)
 public class XmlBeanFactoryTest {
 
