@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.remoting.caucho.HessianProxyFactoryBean;
-import tanghao.learning.test.testHessian.WithdrawDepositHessianService;
+import tanghao.learning.test.testHessian.TestHessianService;
 
 /**
  * @Author：Canthny
@@ -21,8 +21,8 @@ public class DemoApplication {
     @Bean
     public HessianProxyFactoryBean helloClient() {
         HessianProxyFactoryBean factory = new HessianProxyFactoryBean();
-        factory.setServiceUrl("http://192.168.1.105:9464/ipad/remoting/commonBankConnectService.hessian");
-        factory.setServiceInterface(WithdrawDepositHessianService.class);
+        factory.setServiceUrl("http://xxx.xxx.xxx.xxx:xxxx/path/xxxxx.hessian");
+        factory.setServiceInterface(TestHessianService.class);
         return factory;
     }
 }
