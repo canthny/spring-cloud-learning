@@ -8,4 +8,5 @@
         </bean>
 
         <bean id="testServiceB" class="tanghao.learning.test.spring.framework.service.impl.TestServiceBImpl" init-method="init"/>
+        <!--<bean id="testServiceB" class="tanghao.learning.test.spring.framework.service.impl.TestServiceCImpl" init-method="init"/>-->
 </beans>

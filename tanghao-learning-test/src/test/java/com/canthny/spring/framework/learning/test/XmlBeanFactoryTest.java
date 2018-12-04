@@ -20,6 +20,7 @@ public class XmlBeanFactoryTest {
     @Test
     public void test1(){
         BeanFactory beanFactory = new XmlBeanFactory(new ClassPathResource("testXmlBeanFactory.xml"));
+        //BeanFacotry延迟加载,如果Bean的某一个属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常
         TestServiceA testService = (TestServiceA) beanFactory.getBean("testServiceA");
         testService.test();
     }
