@@ -18,11 +18,11 @@ public class DemoApplication {
         SpringApplication.run(DemoApplication.class,args);
     }
 
-    @Bean
-    public HessianProxyFactoryBean helloClient() {
-        HessianProxyFactoryBean factory = new HessianProxyFactoryBean();
-        factory.setServiceUrl("http://xxx.xxx.xxx.xxx:xxxx/path/xxxxx.hessian");
-        factory.setServiceInterface(TestHessianService.class);
-        return factory;
-    }
+//    @Bean
+//    public HessianProxyFactoryBean helloClient() {
+//        HessianProxyFactoryBean factory = new HessianProxyFactoryBean();
+//        factory.setServiceUrl("http://xxx.xxx.xxx.xxx:xxxx/path/xxxxx.hessian");
+//        factory.setServiceInterface(TestHessianService.class);
+//        return factory;
+//    }
 }
