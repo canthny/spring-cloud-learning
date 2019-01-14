@@ -11,6 +11,11 @@
 
     <groupId>com.tanghao.springcloud.demo</groupId>
     <artifactId>tanghao-nacos-client-demo</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>tanghao-nacos-client-privider</module>
+        <module>tanghao-nacos-client-consumer</module>
+    </modules>
 
 
 </project>

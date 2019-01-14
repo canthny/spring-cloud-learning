@@ -11,6 +11,11 @@
 
     <groupId>com.tanghao.springcloud.demo</groupId>
     <artifactId>tanghao-registry</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>tanghao-eureka-server</module>
+        <module>tanghao-nacos-client-demo</module>
+    </modules>
 
 
 </project>

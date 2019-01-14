@@ -7,14 +7,14 @@
 	<artifactId>tanghao-demo-root</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<modules>
-		<module>tanghao-eureka-server</module>
 		<module>tanghao-learning-test</module>
 		<module>tanghao-lcn-demo</module>
 		<module>tanghao-rabbitmq-learning</module>
 		<module>tanghao-log-sleuth-zipkin</module>
         <module>tanghao-kafka-demo</module>
 		<module>tanghao-redis</module>
-    </modules>
+		<module>tanghao-registry</module>
+	</modules>
 
 	<packaging>pom</packaging>
 
