@@ -1,5 +1,6 @@
 package tanghao.learning.test.concurrence;
 
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -11,22 +12,27 @@ public class CountDownLatchTest {
 
     public static void main(String[] args) {
         final CountDownLatch countDownLatch = new CountDownLatch(10);
+        final Random random = new Random();
 
-        Thread t = new Thread(){
-            public void run(){
-                for(int i=0;i<10;i++){
-                    countDownLatch.countDown();
+        for(int i=0;i<10;i++) {
+            Thread t = new Thread(){
+                public void run(){
                     try {
-                        Thread.sleep(1000);
+                        int i = random.nextInt(10000);
+                        System.out.println("thread:"+Thread.currentThread().getId()+" need time " +i);
+                        Thread.sleep(i);
+                        countDownLatch.countDown();
+                        System.out.println(countDownLatch.getCount());
+                        System.out.println("thread:"+Thread.currentThread().getId()+" is done");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    System.out.println(countDownLatch.getCount());
                 }
-            }
-        };
-        t.start();
+            };
+            t.start();
+        }
 
+        //主线程进入等待，等待所有10个异步线程都完成任务方可继续
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
