@@ -29,6 +29,6 @@ public class SpringBootRedisTest {
 //        redisTemplate.
 //        String key = SERIAL_NUMBER+"20180718";
 //        long seq = jedis.incr(key);
-//        return "";
+        return "";
     }
 }
