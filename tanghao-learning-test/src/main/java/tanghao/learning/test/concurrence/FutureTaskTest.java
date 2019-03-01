@@ -53,6 +53,8 @@ public class FutureTaskTest {
             //这里开始2s内获取不到计算结果就直接抛出TimeoutException，因为计算需要5s，这里2s加上之前sleep的2s大约4s多一点还未计算出结果
             System.out.println(futureTask2.get(2, TimeUnit.SECONDS));
         } catch (TimeoutException e) {
+            //未完成的任务可以直接取消，不会再打印计算结果
+            futureTask2.cancel(true);
             e.printStackTrace();
         }
     }
