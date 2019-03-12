@@ -6,7 +6,13 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.yaml.snakeyaml.Yaml;
 import tanghao.learning.test.spring.framework.service.TestServiceA;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author： Canthny
@@ -24,4 +30,5 @@ public class XmlBeanFactoryTest {
         TestServiceA testService = (TestServiceA) beanFactory.getBean("testServiceA");
         testService.test();
     }
+
 }

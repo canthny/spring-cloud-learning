@@ -1,0 +1,12 @@
+!!com.canthny.spring.framework.learning.test.YamlTest$A
+name: test
+port: 100
+redisConfig:
+  tables:
+  - key: id
+    tableName: test1
+    value: id,name
+  - key: id
+    tableName: test2
+    value: name
+  type: standalone
