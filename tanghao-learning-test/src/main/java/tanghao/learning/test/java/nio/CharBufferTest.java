@@ -1,6 +1,5 @@
-package tanghao.learning.test.nio;
+package tanghao.learning.test.java.nio;
 
-import java.nio.Buffer;
 import java.nio.CharBuffer;
 
 /**
