@@ -20,23 +20,24 @@ public class RedisStandAloneTest {
 
     private static AtomicInteger count = new AtomicInteger(0);
 
-    private final Integer MAX = 1000000;
+    private final Integer MAX = 999999999;
 
     @Autowired
     RedisTemplate redisTemplate;
 
     @RequestMapping(value = "/testGet",method = RequestMethod.POST)
-    public void testGet(){
-        Integer  random = new Random().nextInt(MAX);
-        redisTemplate.opsForValue().get(random);
+    public String testGet(){
+//        Integer  random = new Random().nextInt(MAX);
+//        redisTemplate.opsForValue().get(random);
+        return "success";
     }
 
     @RequestMapping(value = "/testSet",method = RequestMethod.POST)
-    public void testSet(){
+    public String testSet(){
         Integer key = count.incrementAndGet();
         if(key<MAX){
             redisTemplate.opsForValue().set(key,UUID.randomUUID().toString());
         }
-
+        return "success";
     }
 }
