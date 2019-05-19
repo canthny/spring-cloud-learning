@@ -1,4 +1,4 @@
-package tanghao.learning.test.concurrence;
+package tanghao.learning.test.java.concurrence;
 
 import net.jcip.annotations.NotThreadSafe;
 

@@ -1,6 +1,4 @@
-package tanghao.learning.test.concurrence;
-
-import javax.swing.plaf.SliderUI;
+package tanghao.learning.test.java.concurrence;
 
 /**
  * @Author： Canthny

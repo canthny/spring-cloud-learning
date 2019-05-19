@@ -27,7 +27,6 @@ public class CharBufferTest {
         System.out.println(buffer.get());
         System.out.println(buffer.get());
 
-        String t = "\\";
-        System.out.println(String.valueOf(t.charAt(0)));
+
     }
 }

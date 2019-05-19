@@ -39,9 +39,6 @@ LinkedBlockingQueue、ArrayBlockingQueue是FIFO队列
 PriorityBlockingQueue优先级队列
 SynchronousQueue，其实不是一个真正的队列，它不会为队列中的元素维护存储空间，它维护的是一组线程，线程在等着把元素加入或者移出队列。
 
-
-
-
 #待研究的问题
 Timer基于绝对时间
 ScheduledThreadPoolExecutor基于相对时间

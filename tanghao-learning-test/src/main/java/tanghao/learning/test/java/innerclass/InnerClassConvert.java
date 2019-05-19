@@ -1,4 +1,4 @@
-package tanghao.learning.test.innerclass;
+package tanghao.learning.test.java.innerclass;
 
 /**
  * @Author： Canthny
