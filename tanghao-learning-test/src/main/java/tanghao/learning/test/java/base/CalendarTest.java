@@ -12,10 +12,23 @@ import java.util.Date;
 public class CalendarTest {
 
     public static void main(String[] args) throws ParseException {
+        SimpleDateFormat sdf_yyyyMMdd = new SimpleDateFormat("yyyyMMdd");
+        System.out.println("20190719".compareTo("20190722"));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date1 = sdf.parse("2018-09-10 00:00:00");
+        Date date1 = sdf.parse("2019-07-23 00:00:00");
         Date date2 = sdf.parse("2019-07-08 23:59:59");
         System.out.println(getMonthInterval(date1,date2));
+    }
+    private static class TestClass{
+        private Integer i;
+
+        public Integer getI() {
+            return i;
+        }
+
+        public void setI(Integer i) {
+            this.i = i;
+        }
     }
 
     private static int getMonthInterval(Date date1, Date date2){
