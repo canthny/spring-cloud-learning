@@ -1,4 +1,2 @@
 # spring-cloud-learning
-test commit23
-test update24
-
+registry、redis、mq、分布式事务、链路追踪等
