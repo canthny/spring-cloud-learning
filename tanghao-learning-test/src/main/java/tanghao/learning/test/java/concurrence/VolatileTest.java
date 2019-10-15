@@ -16,7 +16,7 @@ public class VolatileTest {
         new TestThread().start();
         while(!flag){
             //TODO why？这里如果用了sleep，唤醒后貌似会重新加载主存中的变量值，不加volatile也可见
-//            Thread.sleep(100);
+            Thread.sleep(100);
             count++;
         }
         System.out.println("get out of while");

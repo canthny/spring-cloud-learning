@@ -29,8 +29,9 @@ public class ThreadLocalTest {
         System.out.println("Thread:"+Thread.currentThread().getName()+"|count ="+threadLocalTest.getValue());
 
         Thread t = new Thread(){
+            @Override
             public void run(){
-//                threadLocalTest.init();
+                threadLocalTest.init();
                 System.out.println("Thread:"+Thread.currentThread().getName()+"|count ="+threadLocalTest.getValue());
                 threadLocalTest.plus();
                 System.out.println("Thread:"+Thread.currentThread().getName()+"|count ="+threadLocalTest.getValue());
