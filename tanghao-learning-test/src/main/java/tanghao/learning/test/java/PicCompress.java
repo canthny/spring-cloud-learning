@@ -1,6 +1,8 @@
 package tanghao.learning.test.java;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Description： TODO
@@ -9,7 +11,11 @@ import java.text.SimpleDateFormat;
 public class PicCompress {
 
     public static void main(String[] args) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String test = sdf.format(null) ;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+        String test = sdf.format(new Date()) ;
+        System.out.println(test);
+//        Calendar cal = Calendar.getInstance();
+//        cal.setTime(date);
+//        int month = cal.get(Calendar.MONTH )+1;
     }
 }
