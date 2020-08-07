@@ -1,9 +1,12 @@
 package com.tanghao.redis.jedis.utils;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisException;
+
+import java.util.Collections;
 
 /**
  * @Author： Canthny
@@ -112,5 +115,13 @@ public class JedisUtil {
             returnResource(jedis);
         }
         return result;
+    }
+
+    public static void main(String[] args) {
+//        String script = "local lockid =  redis.call('get', KEYS[1]) \n" +
+//                "if not (lockid == \"null\") and lockid == ARGV[1] then return \"true\" else return \"false\" end";
+        String script = "local lockid =  redis.call('get', KEYS[1]) \n" +
+                "if not (lockid == \"null\") and lockid == ARGV[1] then return redis.call('del', KEYS[1]) else return \"0\" end";
+        System.out.println( JedisUtil.getResource().eval(script, Collections.singletonList("test"), Collections.singletonList("1")));
     }
 }

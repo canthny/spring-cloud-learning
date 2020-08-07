@@ -18,7 +18,7 @@ import tanghao.learning.test.testHessian.TestHessianService;
  * @Date：Created in 2018/5/8 16:13
  */
 @SpringBootApplication
-@ComponentScan("tanghao.learning.test.spring.framework.service.event")
+@ComponentScan("tanghao.learning.test")
 public class DemoApplication {
 
 

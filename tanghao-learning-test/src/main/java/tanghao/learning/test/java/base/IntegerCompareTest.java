@@ -23,9 +23,9 @@ public class IntegerCompareTest {
         Integer b5 = new Integer(1000);
 
         System.out.println(a1==b1);
-        System.out.println(a2==b2);
+        System.out.println(a2.equals(b2));
         System.out.println(a3==b3);
         System.out.println(a4==b4);
-        System.out.println(a5==b5);
+        System.out.println(a5.equals(b5));
     }
 }

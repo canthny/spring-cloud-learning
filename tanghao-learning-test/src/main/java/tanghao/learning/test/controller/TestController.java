@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Date： Created in 2018/5/8 16:24
  */
 @RestController
-@RequestMapping("test")
+@RequestMapping(value = "/test1")
 public class TestController {
 
     @RequestMapping("/testAopAspect")

@@ -14,7 +14,8 @@
         <module>tanghao-kafka-demo</module>
 		<module>tanghao-redis</module>
 		<module>tanghao-registry</module>
-	</modules>
+        <module>write-spring-framework</module>
+    </modules>
 
 	<packaging>pom</packaging>
 

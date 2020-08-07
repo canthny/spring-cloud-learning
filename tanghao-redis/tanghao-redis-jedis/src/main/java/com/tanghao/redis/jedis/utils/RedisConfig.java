@@ -9,9 +9,9 @@ public class RedisConfig {
 
     public final static boolean IS_CLUSTER = false;
 
-    public final static String SINGLE_HOST = "192.168.80.128";
+    public final static String SINGLE_HOST = "192.168.8.145";
 
-    public final static int SINGLE_PORT = 6679;
+    public final static int SINGLE_PORT = 6379;
 
     public final static String[] CLUSTER_HOSTANDPORT = new String[]{
             "10.20.30.50:6379",
