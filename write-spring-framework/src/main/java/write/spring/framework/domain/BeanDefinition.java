@@ -6,17 +6,17 @@ package write.spring.framework.domain;
  */
 public class BeanDefinition {
 
-    private Class clazz;
+    private Class<?> clazz;
 
     private String name;
 
     private String initMethod;
 
-    public Class getClazz() {
+    public Class<?> getClazz() {
         return clazz;
     }
 
-    public void setClazz(Class clazz) {
+    public void setClazz(Class<?> clazz) {
         this.clazz = clazz;
     }
 

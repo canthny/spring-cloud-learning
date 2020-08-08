@@ -1,8 +1,8 @@
 package write.spring.framework.test;
 
 import write.spring.framework.application.BeanApplication;
-import write.spring.framework.bean.ComponentA;
-import write.spring.framework.bean.ComponentB;
+import write.spring.framework.bean.ioc.ComponentA;
+import write.spring.framework.bean.ioc.ComponentB;
 
 /**
  * Description： IOC测试类

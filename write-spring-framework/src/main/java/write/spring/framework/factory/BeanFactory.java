@@ -12,7 +12,11 @@ public interface BeanFactory {
 
     Object getBeanByName(String name);
 
+    //注册bean
     void registryBeanDefinition(BeanDefinition beanDefinition);
 
     void refresh();
+
+    //检查bean
+    void checkBeanBefore() throws ClassNotFoundException;
 }

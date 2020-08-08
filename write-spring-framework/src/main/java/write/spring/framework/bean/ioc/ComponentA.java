@@ -1,4 +1,4 @@
-package write.spring.framework.bean;
+package write.spring.framework.bean.ioc;
 
 import write.spring.framework.annotation.Bean;
 import write.spring.framework.annotation.InitMethod;
@@ -39,7 +39,7 @@ public class ComponentA {
         return "ComponentA{" +
                 "name='" + name + '\'' +
                 ", a=" + a +
-                ", componentB=" + componentB +
+                ", componentB=" + (componentB == null) +
                 '}';
     }
 }

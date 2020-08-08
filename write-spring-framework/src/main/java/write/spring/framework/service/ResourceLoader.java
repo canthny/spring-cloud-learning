@@ -27,8 +27,8 @@ public class ResourceLoader {
             doPath(new File(searchPath));
             for (String s : classPaths) {
                 s = s.replace(classpath.replace("/","\\").replaceFirst("\\\\",""),"").replace("\\",".").replace(".class","");
-                Class cls = Class.forName(s);
-                Bean anno = (Bean)cls.getAnnotation(Bean.class);
+                Class<?> cls = Class.forName(s);
+                Bean anno = cls.getAnnotation(Bean.class);
                 if(null!=anno){
                     BeanDefinition beanDefinition = new BeanDefinition();
                     beanDefinition.setClazz(cls);

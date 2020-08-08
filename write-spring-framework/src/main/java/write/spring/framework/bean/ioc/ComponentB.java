@@ -1,8 +1,9 @@
-package write.spring.framework.bean;
+package write.spring.framework.bean.ioc;
 
 import write.spring.framework.annotation.Bean;
 import write.spring.framework.annotation.InitMethod;
 import write.spring.framework.annotation.Injection;
+import write.spring.framework.bean.ioc.ComponentA;
 
 /**
  * Description： TODO
@@ -33,7 +34,7 @@ public class ComponentB {
         return "ComponentB{" +
                 "name='" + name + '\'' +
                 ", b=" + b +
-                ", componentA=" + componentA +
+                ", componentA=" + (componentA == null) +
                 '}';
     }
 }

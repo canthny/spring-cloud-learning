@@ -24,6 +24,8 @@ public class BeanApplication {
         for(BeanDefinition definition : beanDefinitions){
             defaultBeanFactory.registryBeanDefinition(definition);
         }
+        defaultBeanFactory.checkBeanBefore();
+
         defaultBeanFactory.refresh();
     }
 
