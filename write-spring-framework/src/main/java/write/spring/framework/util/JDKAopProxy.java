@@ -12,7 +12,7 @@ import java.lang.reflect.Proxy;
  * Description： jdk动态代理
  * Created By tanghao on 2020/8/8
  */
-public class JDKProxy {
+public class JDKAopProxy {
 
     private Object obj;
 
@@ -20,17 +20,17 @@ public class JDKProxy {
 
     private AopDefinition aopDefinition;
 
-    public JDKProxy(Object obj, Object aspectObj, AopDefinition aopDefinition){
+    public JDKAopProxy(Object obj, Object aspectObj, AopDefinition aopDefinition){
         this.obj = obj;
         this.aspectObj = aspectObj;
         this.aopDefinition = aopDefinition;
     }
 
     public Object getProxyInstance(){
-        return Proxy.newProxyInstance(obj.getClass().getClassLoader(),obj.getClass().getInterfaces(),new JdkInvocationHandler());
+        return Proxy.newProxyInstance(obj.getClass().getClassLoader(),obj.getClass().getInterfaces(),new JdkAopInvocationHandler());
     }
 
-    class JdkInvocationHandler implements InvocationHandler{
+    class JdkAopInvocationHandler implements InvocationHandler{
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Object result = null;
