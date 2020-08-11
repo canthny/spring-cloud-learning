@@ -2,12 +2,9 @@ package write.spring.framework.factory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import write.spring.framework.annotation.Aspect;
-import write.spring.framework.annotation.Bean;
-import write.spring.framework.annotation.Before;
-import write.spring.framework.annotation.Injection;
+import write.spring.framework.annotation.*;
 import write.spring.framework.domain.BeanDefinition;
-import write.spring.framework.domain.ProxyDefinition;
+import write.spring.framework.domain.AopDefinition;
 import write.spring.framework.util.JDKProxy;
 
 import java.lang.reflect.Field;
@@ -30,7 +27,7 @@ public class DefaultBeanFactory implements BeanFactory {
 
     private Map<String,BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
 
-    private Map<String,ProxyDefinition> proxyDefinitionMap = new ConcurrentHashMap<>();
+    private Map<String, AopDefinition> aopDefinitionMap = new ConcurrentHashMap<>();
 
     @Override
     public <T> T getBeanByName(String name, Class<T> clazz) {
@@ -88,22 +85,52 @@ public class DefaultBeanFactory implements BeanFactory {
             BeanDefinition beanDefinition = entry.getValue();
             Class<?> clazz = beanDefinition.getClazz();
             Aspect aspect = clazz.getAnnotation(Aspect.class);
+            String aspectBeanName = beanDefinition.getName();
             if(null!=aspect){
                 Method[] methods = clazz.getDeclaredMethods();
                 for(Method method:methods){
                     Before before = method.getAnnotation(Before.class);
                     if(before != null){
                         String aopClassName = before.clazz();
-                        Bean aopClassBeanAnnotation = Class.forName(aopClassName).getAnnotation(Bean.class);
                         String aopMethodName = before.method();
-                        ProxyDefinition proxyDefinition = new ProxyDefinition(aopClassName,aopMethodName,beanDefinition.getName(), method.getName());
-                        if(proxyDefinitionMap.get(aopClassBeanAnnotation.name())==null){
-                            proxyDefinitionMap.put(aopClassBeanAnnotation.name(),proxyDefinition);
-                        }
+                        Bean aopClassBeanAnnotation = Class.forName(aopClassName).getAnnotation(Bean.class);
+                        String aopBeanName = aopClassBeanAnnotation.name();
+                        AopDefinition aopDefinition = getAopDefinition(aspectBeanName, aopClassName, aopMethodName, aopBeanName);
+                        aopDefinition.setBeforeMethod(method.getName());
+                    }
+                    After after = method.getAnnotation(After.class);
+                    if(after != null){
+                        String aopClassName = after.clazz();
+                        String aopMethodName = after.method();
+                        Bean aopClassBeanAnnotation = Class.forName(aopClassName).getAnnotation(Bean.class);
+                        String aopBeanName = aopClassBeanAnnotation.name();
+                        AopDefinition aopDefinition = getAopDefinition(aspectBeanName, aopClassName, aopMethodName, aopBeanName);
+                        aopDefinition.setAfterMethod(method.getName());
+                    }
+
+                    Around around = method.getAnnotation(Around.class);
+                    if(around != null){
+                        String aopClassName = around.clazz();
+                        String aopMethodName = around.method();
+                        Bean aopClassBeanAnnotation = Class.forName(aopClassName).getAnnotation(Bean.class);
+                        String aopBeanName = aopClassBeanAnnotation.name();
+                        AopDefinition aopDefinition = getAopDefinition(aspectBeanName, aopClassName, aopMethodName, aopBeanName);
+                        aopDefinition.setAroundMethod(method.getName());
                     }
                 }
             }
         }
+    }
+
+    private AopDefinition getAopDefinition(String aspectBeanName, String aopClassName, String aopMethodName, String aopBeanName) {
+        AopDefinition aopDefinition = null;
+        if(aopDefinitionMap.get(aopBeanName)==null){
+            aopDefinition = new AopDefinition(aopClassName,aopMethodName,aspectBeanName);
+            aopDefinitionMap.put(aopBeanName, aopDefinition);
+        }else{
+            aopDefinition = aopDefinitionMap.get(aopBeanName);
+        }
+        return aopDefinition;
     }
 
     private Object createBean(String name) throws Exception {
@@ -111,11 +138,11 @@ public class DefaultBeanFactory implements BeanFactory {
         Class beanClass = beanDefinition.getClazz();
 
         Object bean = null;
-        if(proxyDefinitionMap.get(name)!=null){
-            ProxyDefinition proxyDefinition = proxyDefinitionMap.get(name);
-            Class<?> clazz = Class.forName(proxyDefinition.getAopClassName());
+        if(aopDefinitionMap.get(name)!=null){
+            AopDefinition aopDefinition = aopDefinitionMap.get(name);
+            Class<?> clazz = Class.forName(aopDefinition.getAopClassName());
             Object object = clazz.newInstance();
-            bean = new JDKProxy(object,getBeanByName(proxyDefinition.getAspectClassName()),proxyDefinition).getProxyInstance();
+            bean = new JDKProxy(object,getBeanByName(aopDefinition.getAspectClassName()), aopDefinition).getProxyInstance();
         }else{
             bean = beanClass.newInstance();
         }

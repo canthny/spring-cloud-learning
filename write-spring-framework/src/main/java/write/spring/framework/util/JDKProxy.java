@@ -1,6 +1,8 @@
 package write.spring.framework.util;
 
-import write.spring.framework.domain.ProxyDefinition;
+import org.springframework.util.StringUtils;
+import write.spring.framework.domain.AopDefinition;
+import write.spring.framework.domain.AopMethodInvoker;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -16,12 +18,12 @@ public class JDKProxy {
 
     private Object aspectObj;
 
-    private ProxyDefinition proxyDefinition;
+    private AopDefinition aopDefinition;
 
-    public JDKProxy(Object obj, Object aspectObj, ProxyDefinition proxyDefinition){
+    public JDKProxy(Object obj, Object aspectObj, AopDefinition aopDefinition){
         this.obj = obj;
         this.aspectObj = aspectObj;
-        this.proxyDefinition = proxyDefinition;
+        this.aopDefinition = aopDefinition;
     }
 
     public Object getProxyInstance(){
@@ -31,18 +33,29 @@ public class JDKProxy {
     class JdkInvocationHandler implements InvocationHandler{
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            Object result = null;
             //pre
-            if(method.getName().equals(proxyDefinition.getAopMethodName())){
-                Method methodInAspect = aspectObj.getClass().getDeclaredMethod(proxyDefinition.getProxyBeforeMethod());
-                methodInAspect.invoke(aspectObj);
+            if(method.getName().equals(aopDefinition.getAopMethodName())){
+                if(!StringUtils.isEmpty(aopDefinition.getBeforeMethod())){
+                    Method beforeMethod = aspectObj.getClass().getDeclaredMethod(aopDefinition.getBeforeMethod());
+                    beforeMethod.invoke(aspectObj);
+                }
+
+                if(StringUtils.isEmpty(aopDefinition.getAroundMethod())){
+                    result = method.invoke(obj, args);
+                }else{
+                    Method aroundMethod = aspectObj.getClass().getDeclaredMethod(aopDefinition.getAroundMethod(),AopMethodInvoker.class);
+                    result = aroundMethod.invoke(aspectObj,new AopMethodInvoker(method,obj,args));
+                }
+
+                if(!StringUtils.isEmpty(aopDefinition.getAfterMethod())){
+                    Method afterMethod = aspectObj.getClass().getDeclaredMethod(aopDefinition.getAfterMethod());
+                    afterMethod.invoke(aspectObj);
+                }
+            }else{
+                result = method.invoke(obj, args);
             }
 
-            //around如何实现？
-            //执行代理方法
-            Object result = method.invoke(obj, args);
-            //around如何实现？
-
-            //after
             return result;
         }
     }

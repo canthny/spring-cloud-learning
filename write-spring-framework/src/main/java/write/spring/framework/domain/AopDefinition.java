@@ -4,7 +4,7 @@ package write.spring.framework.domain;
  * Description： 代理定义
  * Created By tanghao on 2020/8/8
  */
-public class ProxyDefinition {
+public class AopDefinition {
 
     private String aopClassName;
 
@@ -12,13 +12,16 @@ public class ProxyDefinition {
 
     private String aspectClassName;
 
-    private String proxyBeforeMethod;
+    private String beforeMethod;
 
-    public ProxyDefinition(String className, String method, String aspectClassName, String proxyBeforeMethod){
+    private String aroundMethod;
+
+    private String afterMethod;
+
+    public AopDefinition(String className, String method, String aspectClassName){
         this.aopClassName = className;
         this.aopMethodName = method;
         this.aspectClassName = aspectClassName;
-        this.proxyBeforeMethod = proxyBeforeMethod;
     }
 
     public String getAopClassName() {
@@ -45,11 +48,27 @@ public class ProxyDefinition {
         this.aspectClassName = aspectClassName;
     }
 
-    public String getProxyBeforeMethod() {
-        return proxyBeforeMethod;
+    public String getBeforeMethod() {
+        return beforeMethod;
     }
 
-    public void setProxyBeforeMethod(String proxyBeforeMethod) {
-        this.proxyBeforeMethod = proxyBeforeMethod;
+    public void setBeforeMethod(String beforeMethod) {
+        this.beforeMethod = beforeMethod;
+    }
+
+    public String getAroundMethod() {
+        return aroundMethod;
+    }
+
+    public void setAroundMethod(String aroundMethod) {
+        this.aroundMethod = aroundMethod;
+    }
+
+    public String getAfterMethod() {
+        return afterMethod;
+    }
+
+    public void setAfterMethod(String afterMethod) {
+        this.afterMethod = afterMethod;
     }
 }
