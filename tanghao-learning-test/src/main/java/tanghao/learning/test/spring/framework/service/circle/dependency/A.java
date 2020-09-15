@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class A {
 
-//    @Autowired
-//    private B b;
+    @Autowired
+    private B b;
 
     private String id;
     private String name;
@@ -40,7 +40,7 @@ public class A {
     @Override
     public String toString() {
         return "A{" +
-                "id='" + id + '\'' +
+                ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 '}';
     }

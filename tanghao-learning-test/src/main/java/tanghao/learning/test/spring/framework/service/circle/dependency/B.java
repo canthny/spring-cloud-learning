@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * Description： TODO
  * Created By tanghao on 2020/7/15
  */
-//@Component
+@Component
 public class B {
 
     @Autowired
@@ -39,7 +39,7 @@ public class B {
     @Override
     public String toString() {
         return "B{" +
-                "id='" + id + '\'' +
+                ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 '}';
     }

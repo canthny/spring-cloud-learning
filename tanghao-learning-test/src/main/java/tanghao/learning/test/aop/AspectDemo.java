@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 @Aspect
 public class AspectDemo {
-    @Before(value = "execution(* tanghao.learning.test.controller.TestController.testAopAspect())")
+    @Before(value = "execution(* tanghao.learning.test.spring.framework.service.circle.dependency.A.getName())")
     public void before(JoinPoint joinPoint) {
         System.out.println("AspectDemo in Before method");
     }
 
-    @Around(value = "execution(* tanghao.learning.test.controller.TestController.testAopAspect())")
+    @Around(value = "execution(* tanghao.learning.test.spring.framework.service.circle.dependency.B.getName())")
     public void around(ProceedingJoinPoint pjp) throws Throwable {
         System.out.println("AspectDemo in Around method 1");
         pjp.proceed();
