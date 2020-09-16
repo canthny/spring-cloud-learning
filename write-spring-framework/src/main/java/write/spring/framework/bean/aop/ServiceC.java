@@ -1,6 +1,7 @@
 package write.spring.framework.bean.aop;
 
 import write.spring.framework.annotation.Bean;
+import write.spring.framework.annotation.Injection;
 
 /**
  * Description： Aop测试Bean
@@ -8,6 +9,9 @@ import write.spring.framework.annotation.Bean;
  */
 @Bean(name = "iServiceC")
 public class ServiceC implements IServiceC{
+    @Injection
+    IServiceD iServiceD;
+
     @Override
     public boolean cMethod() {
         System.out.println("ServiceC cMethod in");

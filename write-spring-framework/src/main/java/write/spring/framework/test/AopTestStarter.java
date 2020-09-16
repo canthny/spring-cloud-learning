@@ -2,6 +2,7 @@ package write.spring.framework.test;
 
 import write.spring.framework.application.BeanApplication;
 import write.spring.framework.bean.aop.IServiceC;
+import write.spring.framework.bean.aop.IServiceD;
 
 /**
  * Description： aop测试
@@ -15,6 +16,8 @@ public class AopTestStarter {
         IServiceC iServiceC = beanApplication.getBean("iServiceC", IServiceC.class);
         System.out.println(iServiceC);
         iServiceC.cMethod();
-
+        IServiceD iServiceD = beanApplication.getBean("iServiceD", IServiceD.class);
+        System.out.println(iServiceD);
+        iServiceD.dMethod();
     }
 }

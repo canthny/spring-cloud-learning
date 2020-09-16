@@ -1,4 +1,4 @@
-package write.spring.framework.bean;
+package write.spring.framework.bean.aop;
 
 import write.spring.framework.annotation.*;
 import write.spring.framework.domain.AopMethodInvoker;

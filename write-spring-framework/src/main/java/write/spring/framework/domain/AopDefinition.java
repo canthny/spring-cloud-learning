@@ -1,5 +1,11 @@
 package write.spring.framework.domain;
 
+import org.springframework.util.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Description： 代理定义
  * Created By tanghao on 2020/8/8
@@ -70,5 +76,19 @@ public class AopDefinition {
 
     public void setAfterMethod(String afterMethod) {
         this.afterMethod = afterMethod;
+    }
+
+    public List<String> getInjectClass(){
+        try {
+            Class<?> clazz = Class.forName(this.aopClassName);
+            if(clazz.getInterfaces()!=null && clazz.getInterfaces().length>0){
+                return Arrays.stream(clazz.getInterfaces()).map(temp->temp.getName()).collect(Collectors.toList());
+            }else{
+                return Arrays.asList(aopClassName);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

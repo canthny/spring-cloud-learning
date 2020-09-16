@@ -5,4 +5,8 @@ package write.spring.framework.bean.aop;
  * Created By tanghao on 2020/8/8
  */
 public interface IServiceD {
+
+    boolean dMethod();
+
+    boolean dMethodWithParam(String param);
 }

@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
  * Created By tanghao on 2020/7/15
  */
 @Component
-public class B {
+public class B implements IB{
 
     @Autowired
-    private A a;
+    private IA a;
     private String id;
     private String name;
 

@@ -1,9 +1,13 @@
 package write.spring.framework.util;
 
 import org.springframework.util.StringUtils;
+import write.spring.framework.annotation.Injection;
 import write.spring.framework.domain.AopDefinition;
 import write.spring.framework.domain.AopMethodInvoker;
+import write.spring.framework.util.impl.InterfaceAImpl;
+import write.spring.framework.util.impl.InterfaceCImpl;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -57,6 +61,41 @@ public class JDKAopProxy {
             }
 
             return result;
+        }
+    }
+
+    static class JdkAopInvocationHandlerTest implements InvocationHandler{
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            System.out.println("JdkAopInvocationHandlerTest in method A");
+
+            return null;
+        }
+    }
+
+    public static void main(String[] args) throws IllegalAccessException, InstantiationException {
+        Class clazz = InterfaceAImpl.class;
+        Object object = clazz.newInstance();
+        object = Proxy.newProxyInstance(object.getClass().getClassLoader(),object.getClass().getInterfaces(),new JdkAopInvocationHandlerTest());
+        ClassB b = new ClassB();
+        for(Field field:ClassB.class.getDeclaredFields()){
+            field.setAccessible(true);
+            field.set(b,object);
+        }
+        System.out.println(b);
+        b.getA().A();
+
+        Class clazzC = InterfaceCImpl.class;
+        Object objectC = clazzC.newInstance();
+        objectC = Proxy.newProxyInstance(objectC.getClass().getClassLoader(),objectC.getClass().getInterfaces(),new JdkAopInvocationHandlerTest());
+        for(Field field:clazzC.getDeclaredFields()){
+            if(field.getName().equals("count")){
+                field.setAccessible(true);
+                field.set(objectC,1);
+            }
+//            field.setAccessible(true);
+//            field.set(objectC,object);
         }
     }
 }
