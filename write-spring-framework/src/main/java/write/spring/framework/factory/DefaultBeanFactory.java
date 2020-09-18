@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import write.spring.framework.annotation.*;
 import write.spring.framework.domain.BeanDefinition;
 import write.spring.framework.domain.AopDefinition;
+import write.spring.framework.util.CglibAopProxy;
 import write.spring.framework.util.JDKAopProxy;
 
 import java.lang.reflect.Field;
@@ -142,7 +143,8 @@ public class DefaultBeanFactory implements BeanFactory {
             AopDefinition aopDefinition = aopDefinitionMap.get(name);
             Class<?> clazz = Class.forName(aopDefinition.getAopClassName());
             Object object = clazz.newInstance();
-            bean = new JDKAopProxy(object,getBeanByName(aopDefinition.getAspectClassName()), aopDefinition).getProxyInstance();
+            bean = new CglibAopProxy(object,getBeanByName(aopDefinition.getAspectClassName()), aopDefinition).getProxyInstance();
+//            bean = new JDKAopProxy(object,getBeanByName(aopDefinition.getAspectClassName()), aopDefinition).getProxyInstance();
         }else{
             bean = beanClass.newInstance();
         }

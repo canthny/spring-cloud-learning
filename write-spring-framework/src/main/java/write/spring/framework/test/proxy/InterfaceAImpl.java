@@ -1,6 +1,4 @@
-package write.spring.framework.util.impl;
-
-import write.spring.framework.util.InterfaceA;
+package write.spring.framework.test.proxy;
 
 /**
  * Description： TODO

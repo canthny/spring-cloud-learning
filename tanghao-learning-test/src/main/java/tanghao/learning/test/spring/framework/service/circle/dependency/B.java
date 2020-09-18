@@ -43,4 +43,9 @@ public class B implements IB{
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    @Override
+    public void print() {
+        System.out.println("B.print");
+    }
 }

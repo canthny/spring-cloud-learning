@@ -44,4 +44,9 @@ public class A implements IA{
                 ", name='" + name + '\'' +
                 '}';
     }
+
+    @Override
+    public void print() {
+        System.out.println("A.print");
+    }
 }

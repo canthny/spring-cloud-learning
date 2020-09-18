@@ -1,18 +1,20 @@
 package write.spring.framework.util;
 
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 import org.springframework.util.StringUtils;
 import write.spring.framework.domain.AopDefinition;
 import write.spring.framework.domain.AopMethodInvoker;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * Description： jdk动态代理
- * Created By tanghao on 2020/8/8
+ * Description： TODO
+ * Created By tanghao on 2020/9/18
  */
-public class JDKAopProxy implements InvocationHandler{
+public class CglibAopProxy implements MethodInterceptor {
 
     private Object obj;
 
@@ -20,18 +22,21 @@ public class JDKAopProxy implements InvocationHandler{
 
     private AopDefinition aopDefinition;
 
-    public JDKAopProxy(Object obj, Object aspectObj, AopDefinition aopDefinition){
+    public CglibAopProxy(Object obj, Object aspectObj, AopDefinition aopDefinition){
         this.obj = obj;
         this.aspectObj = aspectObj;
         this.aopDefinition = aopDefinition;
     }
 
     public Object getProxyInstance(){
-        return Proxy.newProxyInstance(obj.getClass().getClassLoader(),obj.getClass().getInterfaces(),this);
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(obj.getClass());
+        enhancer.setCallback(this);
+        return enhancer.create();
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         Object result = null;
         //pre
         if(method.getName().equals(aopDefinition.getAopMethodName())){
@@ -43,7 +48,7 @@ public class JDKAopProxy implements InvocationHandler{
             if(StringUtils.isEmpty(aopDefinition.getAroundMethod())){
                 result = method.invoke(obj, args);
             }else{
-                Method aroundMethod = aspectObj.getClass().getDeclaredMethod(aopDefinition.getAroundMethod(),AopMethodInvoker.class);
+                Method aroundMethod = aspectObj.getClass().getDeclaredMethod(aopDefinition.getAroundMethod(), AopMethodInvoker.class);
                 result = aroundMethod.invoke(aspectObj,new AopMethodInvoker(method,obj,args));
             }
 
@@ -57,5 +62,4 @@ public class JDKAopProxy implements InvocationHandler{
 
         return result;
     }
-
 }
