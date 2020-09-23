@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * Description： TODO
+ * Description： jdk动态代理测试
  * Created By tanghao on 2020/9/18
  */
 public class JdkAopInvocationHandlerTest implements InvocationHandler {

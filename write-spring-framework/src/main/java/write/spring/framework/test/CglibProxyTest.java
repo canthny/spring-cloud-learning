@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Description： cglib增强代理
+ * Description： cglib增强代理测试
  * Created By tanghao on 2020/9/18
  */
 public class CglibProxyTest implements MethodInterceptor {
