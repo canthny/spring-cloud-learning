@@ -8,4 +8,6 @@ package tanghao.learning.test.spring.framework.service;
 public interface TestServiceA {
 
     void test();
+
+    void test(User user);
 }

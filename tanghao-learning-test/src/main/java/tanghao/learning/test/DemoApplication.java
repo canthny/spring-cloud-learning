@@ -1,5 +1,6 @@
 package tanghao.learning.test;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,8 +18,8 @@ import tanghao.learning.test.testHessian.TestHessianService;
  * @Description：//TODO 那么请问：这个类是干嘛的呢？
  * @Date：Created in 2018/5/8 16:13
  */
-@SpringBootApplication
-@ComponentScan("tanghao.learning.test")
+@SpringBootApplication(scanBasePackages = "tanghao.learning.test")
+@MapperScan(basePackages = "tanghao.learning.test.mapper")
 public class DemoApplication {
 
 
