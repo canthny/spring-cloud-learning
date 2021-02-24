@@ -5,11 +5,13 @@ import org.modelmapper.internal.bytebuddy.agent.builder.AgentBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -21,60 +23,43 @@ import java.util.Set;
 public class JdkNioServer {
 
     public static void main(String[] args) throws IOException {
+        Selector selector = Selector.open();
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
         serverSocketChannel.configureBlocking(false);
-        ServerSocket serverSocket = serverSocketChannel.socket();
-        InetSocketAddress address = new InetSocketAddress(9090);
-        serverSocket.bind(address);
-        Selector selector = Selector.open();
-        serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
-        final ByteBuffer msg = ByteBuffer.wrap("Hi!\r\n".getBytes());
-        while (true){
-            try{
-                selector.select();
-            }catch (Exception e){
-
-            }
-            Set<SelectionKey> readKeys = selector.selectedKeys();
-            Iterator<SelectionKey> iterator = readKeys.iterator();
-            while (iterator.hasNext()){
-                SelectionKey key = iterator.next();
-                iterator.remove();
-                try {
-                    if(key.isAcceptable()){
-                        ServerSocketChannel server = (ServerSocketChannel) key.channel();
-                        SocketChannel client = server.accept();
-                        client.configureBlocking(false);
-                        client.register(selector,SelectionKey.OP_WRITE|SelectionKey.OP_READ,msg.duplicate());
-                        System.out.println("Accept client from "+client);
-                    }
-                    if(key.isReadable()){
-                        System.out.println("read from client");
-                    }
-                    if(key.isWritable()){
-                        SocketChannel client = (SocketChannel) key.channel();
-                        ByteBuffer byteBuffer2 = ByteBuffer.allocate(1000);
-                        int readLenth =client.read(byteBuffer2);
-                        byte[] bytes = new byte[readLenth];
-                        byteBuffer2.get(bytes);
-                        System.out.println(new String(bytes, "UTF-8"));
-                        byteBuffer2.clear();
-                        ByteBuffer byteBuffer = (ByteBuffer) key.attachment();
-                        while (byteBuffer.hasRemaining()){
-                            if(client.write(byteBuffer)==0){
-                                break;
-                            }
+        SocketAddress socketAddress = new InetSocketAddress("localhost",8988);
+        serverSocketChannel.socket().bind(socketAddress);
+        serverSocketChannel.register(selector,SelectionKey.OP_ACCEPT);
+        while(true){
+            while(selector.select()>0){
+                Set<SelectionKey> selectionKeys = selector.selectedKeys();
+                Iterator<SelectionKey> it = selectionKeys.iterator();
+                while (it.hasNext()){
+                    SelectionKey selectionKey = it.next();
+                    if(selectionKey.isAcceptable()){
+                        SocketChannel socketChannel = serverSocketChannel.accept();
+                        socketChannel.configureBlocking(false);
+                        socketChannel.register(selector,SelectionKey.OP_READ|SelectionKey.OP_WRITE);
+                    }else if(selectionKey.isReadable()){
+                        SocketChannel serverChannel = (SocketChannel)selectionKey.channel();
+                        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+                        int length = 0;
+                        while((length =serverChannel.read(byteBuffer))>0){
+                            byteBuffer.flip();
+                            String reqData = new String(byteBuffer.array(), 0, length);
+                            System.out.println("data from client is :" + reqData);
                         }
-                        client.close();
-                    }
-                }catch (Exception e){
-                    e.printStackTrace();
-                    key.channel();
-                    try {
-                        key.channel().close();
-                    }catch (Exception e1){
+                        byteBuffer.clear();
+                        byteBuffer.put("resp to client".getBytes(StandardCharsets.UTF_8));
+                        byteBuffer.flip();
+                        serverChannel.write(byteBuffer);
+                        byteBuffer.clear();
+                        serverChannel.close();
+                    }else if(selectionKey.isWritable()){
+                        System.out.println();
+                    }else{
 
                     }
+                    it.remove();
                 }
             }
         }

@@ -2,6 +2,8 @@ package tanghao.learning.test.java.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -14,7 +16,7 @@ import java.nio.channels.SocketChannel;
 public class JdkNioClient {
 
     public static void main(String[] args) throws IOException {
-        SocketAddress address = new InetSocketAddress(9090);
+        SocketAddress address = new InetSocketAddress("localhost",8988);
         SocketChannel client = SocketChannel.open(address);
         ByteBuffer buffer = ByteBuffer.wrap("client demo in".getBytes());
         client.write(buffer);
