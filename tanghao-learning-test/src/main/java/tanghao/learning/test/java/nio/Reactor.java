@@ -73,4 +73,13 @@ class Reactor implements Runnable
             { /* ... */ }
         }
     }
+
+    public static void main(String[] args) {
+        try {
+            Reactor reactor = new Reactor(8988);
+            reactor.run();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

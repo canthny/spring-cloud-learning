@@ -1,6 +1,7 @@
 package tanghao.learning.test.java.test;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -38,6 +39,7 @@ public class Test {
 //    }
 
     public static void main(String[] args) {
+        testPage();
         SortedSet<Date> dateSet = new TreeSet<>(new Comparator<Date>() {
             @Override
             public int compare(Date o1, Date o2) {
@@ -54,6 +56,22 @@ public class Test {
             Date temp = it.next();
             System.out.println(DateUtil.dateToString(temp,DateUtil.DATE_FORMAT));
         }
+    }
+
+    private static void testPage(){
+        Date start = DateUtil.getDateOfStart(DateUtil.stringToDate("2021-01-25",DateUtil.DATE_FORMAT));
+        Date end = DateUtil.getDateOfEnd(DateUtil.stringToDate("2021-02-25",DateUtil.DATE_FORMAT));
+        long distance = DateUtil.getDistanceDay(start,end);
+        int pageSize = 10;
+        int pageNum = 2;
+        long totalCount = distance + 1;
+        long pageCount = totalCount%pageSize==0?totalCount/pageSize:totalCount/pageSize + 1;
+        end = DateUtil.getBeforeDate(end,(pageNum-1)*pageSize);
+        Date temp =  DateUtil.getBeforeDate(end,pageSize-1);
+        start = start.compareTo(temp)>0?start:temp;
+
+        System.out.println("Start="+start);
+        System.out.println("end="+end);
     }
 
     private static class DateUtil{
@@ -75,6 +93,50 @@ public class Test {
                 e.printStackTrace();
             }
             return dateTime;
+        }
+
+        public static Date getDateOfStart(Date time) {
+            Calendar calendar = Calendar.getInstance(); //得到日历
+            calendar.setTime(time);        //把当前时间赋给日历
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            return calendar.getTime();   //得到当天的时间0点日期
+        }
+
+        public static Date getDateOfEnd(Date time) {
+            Calendar calendar = Calendar.getInstance(); //得到日历
+            calendar.setTime(time);        //把当前时间赋给日历
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            return calendar.getTime();   //得到当天的时间23点59分59秒
+        }
+        public static long getDistanceDay(Date startTime, Date endTime) {
+            long days = 0;
+            try {
+                long time1 = startTime.getTime();
+                long time2 = endTime.getTime();
+                long diff;
+                if (time1 < time2) {
+                    diff = time2 - time1;
+                } else {
+                    diff = time1 - time2;
+                }
+                days = diff / (1000 * 60 * 60 * 24);
+            } catch (Exception e) {
+            }
+            return days;
+        }
+        public static Date stringToDate(String dateString, String pattern) {
+            Date date = null;
+            try {
+                SimpleDateFormat sf = new SimpleDateFormat(pattern);
+                date = sf.parse(dateString);
+            } catch (ParseException e) {
+            }
+            return date;
+
         }
     }
 }

@@ -10,10 +10,12 @@ class Handler implements Runnable
 {
     final SocketChannel channel;
     final SelectionKey sk;
-    ByteBuffer input = ByteBuffer.allocate(1000);
-    ByteBuffer output = ByteBuffer.allocate(1000);
+    ByteBuffer lengthBuf = ByteBuffer.allocate(4);
+    ByteBuffer inputBuf = lengthBuf;
+    ByteBuffer output = ByteBuffer.allocate(1024);
     static final int READING = 0, SENDING = 1;
     int state = READING;
+    int length = 0;
 
     Handler(Selector selector, SocketChannel c) throws IOException
     {
@@ -67,7 +69,28 @@ class Handler implements Runnable
 
     void read() throws IOException
     {
-        channel.read(input);
+        channel.read(inputBuf);
+        if(!inputBuf.hasRemaining()){
+            if(inputBuf==lengthBuf){
+                inputBuf.flip();
+                length = inputBuf.getInt();
+                if(length<=0){
+                    sk.cancel();
+                }else{
+                    inputBuf = ByteBuffer.allocate(length);
+                }
+            }else{
+                //拆包的情况，第二次收到的数据还不满length，继续等待数据到来
+                if(inputBuf.hasRemaining()){
+                    System.out.println("curr position is["+inputBuf.position()+"],waiting..");
+                }else{
+                    System.out.println("data is ready");
+                    inputBuf.flip();
+                    String data = new String(inputBuf.array(),0,length);
+                    System.out.println("data from client is:"+data);
+                }
+            }
+        }
         if (inputIsComplete())
         {
 
