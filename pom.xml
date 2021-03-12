@@ -15,6 +15,7 @@
 		<module>tanghao-redis</module>
 		<module>tanghao-registry</module>
         <module>write-spring-framework</module>
+        <module>write-rpc-base-on-netty</module>
     </modules>
 
 	<packaging>pom</packaging>
