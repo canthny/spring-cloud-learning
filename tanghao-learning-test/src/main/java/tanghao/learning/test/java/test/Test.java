@@ -39,6 +39,10 @@ public class Test {
 //    }
 
     public static void main(String[] args) {
+        Date newestDt =  new Date();
+        System.out.println(DateUtil.getDateOfStart(DateUtil.getBeforeDate(newestDt,1)));
+        System.out.println(DateUtil.getDateOfStart(newestDt));
+
         testPage();
         SortedSet<Date> dateSet = new TreeSet<>(new Comparator<Date>() {
             @Override
