@@ -1,0 +1,593 @@
+虚拟机
+并发
+算法
+netty
+k8s
+zk
+mq
+
+HashMap、SortedSet、SortedMap
+Netty源码
+并发编程
+zk的应用，一致性原理
+mysql课程
+
+算法：数据接口、查找、排序、贪心
+
+实战：秒杀
+
+spring cloud技术栈加功能实现；
+项目总结；汇融平台、文沥风控、礼道、金店
+
+
+
+redis实现延时队列
+activiti创建流程api
+
+Flink+TensorFlow打造实时智能异常检测 https://mp.weixin.qq.com/s/lKsHvKjbIyBJ5OmCl2fIvg
+
+大家有精力的，看下tensor flow，关于图片识别的方法https://blog.csdn.net/qq_39521554/article/details/79335733
+2374540382@qq.com  密码：springcloud
+-------------------------------------------实战 Start-------------------------------------------
+
+
+代收的记账方式，结算后怎么对平账户
+千万数据对账
+不停机切换老库和分库分表
+线程池在什么情况下线程会卡死执行不了：循环线程，父线程达到了最大线程数，等待子线程执行完成，子线程在队列中得不到执行
+volatile底层是怎么实现的；
+ReentrantLock是怎么实现的；
+线程池的拒绝策略；
+redis为什么快，什么样的叫大key；
+Cpu100%情况怎么处理：top找cpu繁忙的pid，jstack打印堆栈信息
+completebale future 和future区别
+单例模式匿名内部类的实现
+Sql调优的时候explain 有哪几列，结果中type列是什么意思
+内存模型JMM，内存屏障，指令重排
+reactor模式讲一讲
+zuul和gateway区别
+全链路跟踪的唯一id记在http哪个部分，上报过程
+在状态机里，mq如果上一个状态的消息还没到，下一个状态的消息先到了怎么办
+
+热点账户整体设计方案
+	--控制并发数：令牌桶保证请求匀速进入。适用于可以接受页面上用小人奔跑等待中的，或者倒计时多少s处理的那种延时场景。
+	--汇总明细入账：适用于收款账户，非热点账户插入流水更新余额，热点账户只做插入流水，后台任务定时合并汇总成一条更新余额；但如果账户有入有出就可能有问题；
+	--缓冲入账：当账户的实时处理能力达到阈值，可以采用降级策略，只做必要的校验后直接返回成功，mq异步去对热点账户进行记账；准实时场景，并且可以接受一定的错误（比如转账的同时对方账户注销，导致转账失败），资金原路退回；
+	--热点账户锁分散：将一个大账户拆分成影子账户，通过hash到不同的影子账户去处理。单个账户的余额可能就不够扣款处理了。需要一些后续方案来保证扣款。比如说：余额不足从其他余额最多的影子账户划账？
+	--内存数据库：可以使用一些内存数据库记录流水，比如redis。丢失了怎么办呢？redis持久化，每次指令刷盘。看这个效率能比数据库高多少？
+	--硬件提升：砸钱就完事了
+
+-------------------------------------------Redis Start-------------------------------------------
+if (redis.call('exists', KEYS[1]) == 0) then redis.call('hset', KEYS[1], ARGV[2], 1); redis.call('pexpire', KEYS[1], ARGV[1]); return nil; end; 
+if (redis.call('hexists', KEYS[1], ARGV[2]) == 1) then redis.call('hincrby', KEYS[1], ARGV[2], 1); redis.call('pexpire', KEYS[1], ARGV[1]); return nil; end; 
+return redis.call('pttl', KEYS[1]);
+--如果不存在key则设置Lock为key，uuid:threadId为filed, filed值为1；
+--如果存在key，且存在uuid:threadId的filed，则说明是当前线程自己持有的锁，将值加1 ，可重入；
+--否则说明其他线程占有了锁，直接返回剩余过期时间；
+
+WatchDogs机制：防止用户执行任务超时，超过了锁的过期时间。获取锁成功的同时会设定一个定时任务，如果key存在则每到过期时间1/3就去重新刷一次。
+
+
+if (redis.call('exists', KEYS[1]) == 0) then redis.call('publish', KEYS[2], ARGV[1]); return 1; end;
+if (redis.call('hexists', KEYS[1], ARGV[3]) == 0) then return nil;end; 
+local counter = redis.call('hincrby', KEYS[1], ARGV[3], -1); 
+if (counter > 0) then redis.call('pexpire', KEYS[1], ARGV[2]); return 0; 
+else redis.call('del', KEYS[1]); redis.call('publish', KEYS[2], ARGV[1]); return 1; end; 
+return nil;
+--如果不存在key，直接发布释放锁的消息，返回成功；
+--如果key存在，但是线程标识的field不存在，则表示被其他线程持有，无法释放，返回空null；
+--如果key和field都存在，则说明当前线程自己持有锁，做-1的操作即可，
+  --并判断当前的值，如果大于0，说明还有其他自旋锁，刷新过期时间，返回失败0；
+  --如果小于等于0，说明可以释放，直接删除key，并发布释放锁消息
+
+如果获取锁失败，则直接订阅key的释放消息，同步阻塞，收到释放锁的事件后再尝试；
+
+
+redis并不能保证强一致性，即使使用了redLock算法，也有可能丢失key。且redis需要轮询去获取锁，性能损耗
+zookeeper则是强一致性的，如果获取不到锁，只需要添加一个监听器就可以了，不用一直轮询，性能消耗较小。但是如果有较多的客户端频繁的申请加锁、释放锁，对于zk集群的压力会比较大。
+-------------------------------------------Redis End-------------------------------------------
+
+-------------------------------------------Zookeeper Start-------------------------------------------
+
+-------------------------------------------Zookeeper End-------------------------------------------
+
+
+-------------------------------------------算法数据结构 Start-------------------------------------------
+Stack
+	-->大鱼吃小鱼
+	-->字典序最小的k个数的子序列
+	-->找出数组中右边比我小的元素,单调栈
+
+lru算法：
+	利用链表和hashmap。当需要插入新的数据项的时候，如果新数据项在链表中存在（一般称为命中），则把该节点移到链表头部，如果不存在，则新建一个节点，放到链表头部，若缓存满了，则把链表最后一个节点删除即可。在访问数据的时候，如果数据项在链表中存在，则把该节点移到链表头部，否则返回-1。这样一来在链表尾部的节点就是最近最久未访问的数据项。
+
+-------------------------------------------算法数据结构 End-------------------------------------------
+
+
+-------------------------------------------消息队列 Start-------------------------------------------
+Kafka
+	-->Broker不提供同步刷盘的功能，要完全让Kafka保证单个Broker 不丢失消息是做不到的，只能通过减少刷盘间隔，减少刷盘数据量大小。时间越短，性能越差，可靠性越好（尽可能可靠）缓解该情况。
+	-->通过Producer和Broker协同处理单个Broker丢失参数的情况。一旦Producer发现Broker消息丢失，即可自动进行retry。除非retry次数超过阈值(可配置)消息才会丢失；
+		-->acks=0，Producer 不等待 Broker 的响应，总耗时 f(t)=f(发送时间)。
+		-->acks=1，leader broker收到消息后，不等待其他follower的响应，即返回ack。总耗时 f(t)=f(发送时间)+f(leader响应时间)。
+		-->acks=-1，leader broker收到消息后挂起，等待所有ISR列表中的follower返回结果后，再返回ack。总耗时f(t)=f(发送时间)+max(f(ISR A响应时间),f(ISR B响应时间))+f(leader响应时间)。
+	-->Producer本身为了减少IO采用压缩发送，会将数据先存入buffer中打包发送，并通过callback来处理消息发送的异常情况。一旦这期间producer被非法停止了，那么buffer中的数据就丢失了。
+		-->异步发送消息改为同步发送消。或者 service 产生消息时，使用阻塞的线程池，并且线程数有一定上限。整体思路是控制消息产生速度。
+		-->扩大 Buffer 的容量配置。这种方式可以缓解该情况的出现，但不能杜绝。
+		-->service 不直接将消息发送到 buffer（内存），而是将消息写到本地的磁盘中（数据库或者文件），由另一个（或少量）生产线程进行消息发送。
+	-->Consumer在自动commit的情况下，如果先commit了，在消费时发生异常就会丢失消息。一般只要设置成手动commit，保证at least once，在业务处理完成后再提交，同时保证消费的幂等性即可。
+
+
+RocketMQ
+	-->
+-------------------------------------------消息队列 End-------------------------------------------
+
+
+-------------------------------------------秒杀系统 Start-------------------------------------------
+
+-------------------------------------------秒杀系统 End-------------------------------------------
+
+-------------------------------------------DDD Start-------------------------------------------
+战略建模
+	-->划分领域模型：用户界面层、应用层、领域层、基础设施层
+	-->确定核心域：秒杀活动信息
+	-->支撑子域：商品信息、库存信息
+	-->通用子域：用户信息
+	-->确立上下文业务边界和业务关系：活动(专题、场次)，商品(基本、销售属性)，库存(实际、销售库存)，用户(账号信息)
+战术建模
+	-->实体：活动主题、商品、账号
+	-->值对象：实际库存、销售库存、原价、活动价
+	-->聚合根：场次、活动商品
+	-->领域事件：活动未开始、进行中、已售罄、已结束
+
+
+-------------------------------------------DDD End-------------------------------------------
+
+
+-------------------------------------------jemalloc 内存分配 start-------------------------------------------
+内存分配器算法
+-->动态内存分配DMA，操作系统根据程序运行过程中的需求即时分配内存，从一整块内存中按需分配，对于分配出的内存会记录元数据，同时还会使用空闲分区链维护空闲内存
+---->⾸次适应算法（低位分配，会产生较小的空闲碎片）、循环首次适应算法（分布均匀，大的空闲分区会减少）、最佳适应算法（每次分配后重新排序，性能损耗）
+-->伙伴算法
+---->内存划分为多组不同的2次幂大小的内存块集合，每组内存块集合都用双向链表连接。如果当前分组不存在空闲的内存块则向上寻找并切割为2个符合条件的内存块，1块使用，另一块链接到下一层链表上；
+---->以Page为最小单位管理，有效的减少了外部碎片，但是可能会造成严重的内部碎片，最严重的情况会带来50%
+-->Slab算法
+---->基于对象进行内存管理的，它把相同类型的对象分为一类。提前分配一块内存，然后将这块内存划分为大小相同的slot，不会对内存块再进行合并，同时使用位图bitmap记录每个slot的使用情况；
+
+
+Netty内存设计
+-->Tiny（0~512B），Small（512B~8K）、Page（8K，Chunk管理内存的单位）、Normal（8K~16M）、Chunk（16M，向操作系统申请内存块的单位）Huge（>16M）；
+-->PoolArena负责内存分配，数量与CPU核数有关。6个PoolChunkList（用于分配大于8K的内存，不同内存利用率，双链表联动，PoolChunk移动损耗消耗）、两个PoolSubpage（ 用于分配小于8K的内存tiny、small）
+-->PoolChunk是真正存储内存数据的地方，每个默认大小16M，分成2048个page构成二叉树
+-->PoolSubpage用bitmap管理内部的小内存块状态，和小内存的tiny/small数组对应 
+-->PoolThreadCache&MemoryRegionCache缓存Tiny、Small、Normal三种类型的数据，而且根据堆内和堆外内存的类型进行了区分，数组（根据小内存块大小）+链表（空闲内存块）的方式
+
+Netty分配策略
+-->分配内存大于8K时，PoolChunk中采用的Page级别的内存分配策略。allocateRun(int normCapacity)
+-->分配内存小于8K时，由PoolSubpage负责管理的内存分配策略。allocateSubpage(int normCapacity)
+-->分配内存小于8K时，为了提高内存分配效率，由PoolThreadCache本地线程缓存提供的内存分配。
+
+
+
+
+-------------------------------------------jemalloc 内存分配 end-------------------------------------------
+
+
+-------------------------------------------Docker & K8s start-------------------------------------------
+容器，其实是一种特殊的进程。
+
+NameSpace特性：
+-->在进程创建时的一个可选参数，相当于设置了这个进程的可见视图，做了隔离。
+-->常用的有：Mount(挂载点信息)、Network（网络设备和配置）、PID（进程号从1开始）
+
+Cgroup特性：
+
+
+-------------------------------------------Docker & K8s end-------------------------------------------
+
+
+
+-------------------------------------------Java Start-------------------------------------------
+LinkedBlockingQueue
+ArrayBlockingQueue
+
+fixed：
+	大小一配置一样，SynchronousQueue无解无缓存（它是线程安全的，是阻塞的）
+cached：min到max
+	-->LinkedBlockingQueue无界队列（生产者端和消费者端分别采用了独立的锁来控制数据同步）
+	-->ArrayListBlockingQueue是有界的，生产者放入数据和消费者获取数据，都是共用同一个锁对象
+	-->ArrayBlockingQueue和LinkedBlockingQueue间还有一个明显的不同之处在于，前者在插入或删除元素时不会产生或销毁任何额外的对象实例，而后者则会生成一个额外的Node对象这在长时间内需要高效并发地处理大批量数据的系统中，其对于GC的影响还是存在一定的区别
+aliveTime:比如说线程池中最大的线程数为50，而其中只有40个线程任务在跑，相当于有10个空闲线程，这10个空闲线程不能让他一直在开着，因为线程的存在也会特别好资源的，一定时间后关闭即可
+线程池拒绝策略：直接丢弃抛出异常AbortPolicy，静默丢弃DiscardPolicy ，丢弃队头的任务（喜新厌旧）DiscardOldestPolicy，交由调用者线程直接执行CallerRunsPolicy
+实战场景：
+	我们使用了了零容量的SynchronousQueue，一进一出，避免队列里缓冲数据，这样在系统异常关闭时，就能排除因为阻塞队列丢消息的可能。
+	然后使用了CallerRunsPolicy饱和策略，使得多线程处理不过来的时候，能够阻塞在kafka的消费线程上。
+
+CAS操作
+	-->compareAndSwapObject(Object this,long objectFieldOffset,Object expect,Object newObj);
+		private volatile Object myObject;
+		MY_OBJECT_OFFSET = Unsafe.objectFieldOffset(MpscArrayQueueProducerIndexField.class.getDeclaredField("myObject"));
+		Unsafe.compareAndSwapObject(this, MY_OBJECT_OFFSET, expect, newValue);
+
+ThreadPoolExecutor
+	-->有新的任务需要执行，并且当前线程池的线程数小于核心线程数，则创建一个核心线程来执行
+	-->如果当前线程数大于核心线程数，则会将除了核心线程处理的任务之外剩下的任务加入到阻塞队列中等待执行
+	-->如果队列已满，则在当前线程数不大于最大线程数的前提下，创建新的非核心线程，处理完毕后等到达keepAliveTime空闲时间后会被直接销毁
+	-->addWorker、runWorker、getTask、processWorkerExit
+		RUNNING：初始状态，在此状态下能够接收新任务，以及对已经添加的任务进行处理；
+		SHUTDOWN：通过调用shutdown方法，线程池转成SHUTDOWN状态。此时不再接收新任务，但是能处理已经添加的任务；
+		STOP：通过调用shutdownNow方法，线程池转成STOP状态。此时不再接收新任务，不处理已经添加的任务，并且会中断正在处理的任务；
+		TIDYING：当线程池中所有的任务已经终止了，任务数量为0并且阻塞队列为空的时候，会进入到TIDYING状态。此时会调用一个钩子方法terminated，它是一个空的实现，可以供调用者覆写；
+		TREMINATED：线程池彻底终止的状态。当线程池处于TIDYING状态时，执行完terminated方法后，就会进入到该状态。
+
+
+ScheduledThreadPoolExecutor定时线程池
+    -->ScheduledFutureTask，封装了父类FutureTask，增加了time（延迟时间）和period（任务类型：0-延迟，否则-周期），sequenceNumber当延迟时间相同时，序列号小的出队
+	-->DelayedWorkQueue，小根堆的实现
+	-->Leader-Follower模式，避免没必要的唤醒和阻塞的操作，这样会更加有效，且节省资源
+	-->scheduleAtFixedRate方法是以上次的延迟时间点开始，延迟指定时间后再次执行当前任务；而scheduleWithFixedDelay方法是以上个周期任务执行完毕后的时间点开始，延迟指定时间后再次执行当前任务
+	-->如果任务的执行时间小于周期时间的话，则会以上次任务执行开始时间加上周期时间后，再去执行下一次任务；而如果任务的执行时间大于周期时间的话，则会等到上次任务执行完毕后立即（近似于）执行下次任务
+
+
+垃圾回收
+
+三色标记法
+	-->黑：本对象已经访问过，且引用的其他对象都访问过；
+	-->白：本对象尚未被访问过；
+	-->灰：本对象已访问过，但是本对象引用到的其他对象未全部访问完
+	-->多标—浮动垃圾：遍历到节点已经置灰，但是此时节点的应用被程序设置成null了。等待下一次gc回收即可
+	-->漏标-读写屏障：灰色对象断开了白色对象的引用，黑色对象又重新引用了白色对象；这个白色节点不会再被访问到，而被gc清理掉；
+	-->写屏障：
+		STAB快照，写前记录之前的引用（E.objD=null），post_write_barrier(field)
+		增量更新，写后记录新的引用（F.objD=D)
+	-->读屏障：
+		重新引用的前提是要先获取白色对象(var D = E.objD)，获取时就执行了pre_load_barrier(field,old_value);
+
+CMS
+	-->初始标记（Stop the world）：CMS算法中两个会触发Stop the World事件中的一个，这个阶段会标记所有与GC Roots直接相关联的对象，以及被存活的青年代对象所直接引用的对象
+	-->并发标记：从第一步“初始标记”中所标记出来的对象开始逐步遍历这些对象，会漏掉一些老年代的存活对象，这是因为在并发的过程中，用户应用线程可能会对老年代的对象产生引用上的改变
+	-->并发预清理：当某一块块（Card）中的对象引用发生改变时，JVM会标记这个空间为“脏块”（Dirty Card）。
+				  JVM根据之前记录的这些“脏对象”重新标记了他们新的可达对象。这一步结束后空间重新进入clean状态。另外，一些必要的最终重标记之前的准备步骤也会在这一步做好
+	-->重标记（Stop-the-World）：由于前一步是一个并发的步骤，预清理的速度可能会赶不上用户应用对对象改变的速度，所以需要一个Stop-the-World的暂停来完整的标记所有对象结束整个标记阶段
+	-->并发清理：这一阶段程序并发地工作，目的是移除所有不用的对象，并且重新声明内存空间的归属等候将来使用
+	-->并发重置：并发地重置所有算法需要的内部数据结构，为下一次GC做准备
+
+G1
+	-->充分利用多核等硬件条件缩短stop-the-world的时间，gc动作可以和程序通过并发的方式继续执行
+	-->标记整理算法，不会产生内存碎片,尤其是当Java堆非常大的时候，G1的优势更加明显
+	-->分代收集，可以独立管理整个堆
+	-->可预测停顿，可以指定一个长度为M毫秒的时间片段内，消耗在垃圾收集上的时间不得超过N毫秒。是一种兼顾吞吐量和停顿时间的GC实现。相比于CMS GC，G1未必能做到CMS在最好情况下的延时停顿，但是最差情况要好很多
+	-->1、初始标记;2、并发标记；3、最终标记;4、筛选回收（对各个区域的回收价值和成本进行排序，根据用户设置来制定回收计划）
+
+AQS
+ReetrantLock
+
+Future
+	-->isDone方法轮询判断是否执行完成，消耗cpu
+	-->get方法阻塞等待完成，失去了异步的意义
+CompletableFuture
+	-->提供了函数式编程的能力，可以通过回调的方式处理计算结果，并且提供了转换和组合CompletableFuture的方法
+	-->组合方式：thenApply(连续处理有入参有返回值),thenAccept(连续处理有入参无返回值),thenRun(连续处理无入参无返回值)，thenCombine(连续处理，组合返回值)
+				applyToEither(谁快就用谁的结果有入参有返回值),acceptEither(无返回值),runAfterEither
+				exceptionally(异常补偿方法)
+	-->类似于一种职责链的模式
+ForkJoinPool
+	-->https://blog.csdn.net/m0_37542889/article/details/92640903
+	-->ForkJoinPool 的每个工作线程都维护着一个工作队列（WorkQueue），这是一个双端队列（Deque），里面存放的对象是任务（ForkJoinTask）。
+	   每个工作线程在运行中产生新的任务（通常是因为调用了 fork()）时，会放入工作队列的队尾，并且工作线程在处理自己的工作队列时，使用的是 LIFO 方式，也就是说每次从队尾取出任务来执行
+	   每个工作线程在处理自己的工作队列同时，会尝试窃取一个任务（或是来自于刚刚提交到pool的任务，或是来自于其他工作线程的工作队列），窃取的任务位于其他线程的工作队列的队首，此时使用的是FIFO方式
+	   在遇到 join() 时，如果需要 join 的任务尚未完成，则会先处理其他任务，并等待其完成。
+	   在既没有自己的任务，也没有可以窃取的任务时，进入休眠。
+	-->ForkJoinTask
+	   RecusiveAction-无返回值，RecusiveTask-有返回值
+	-->特性：
+	   在线程中可以创建新的任务，并挂起当前任务，转而执行队列类似于栈的那头取出子任务执行；
+	   可以通过很少的线程数来完成非常多的父子关系任务；
+
+常用jvm调试指令
+	top
+	jstack pid > pid.tdump
+	jstat -gcutil pid
+	jmap -dump:live,format=b,file=pid.hprof pid
+	jvisualvm本地调试
+
+	jstat gcacuse pid查看gc的详细情况
+	jmap -heap 5511 可以查看jvm分配情况，如果新生代过小，导致新生代频繁gc，且大对象无法分配，直接放入老年代
+	jstat -gc pid 1000 趁线上流量不大时，手动gc后在观察jvm情况，如果内存还是过大，可能存在内存泄露
+	jstack pid | head -50 查看线程堆栈信息，可以指向具体业务类的方法
+	jstack pid | wc -l 查看当前系统总的连接数
+	netstat -nat|grep ESTABLISHED|awk '{print$5}'|awk -F : '{print$1}'|sort|uniq -c|sort -rn 可以分析出当前系统对外建立了大量链接没有释放，可找到最多的ip定位节点
+
+java内存模型-JMM
+	-->工作内存（线程专有，共享变量的副本）、主存（公用，共享变量本身）
+	-->写：assign(赋值)后对应的store(传递变量的值到主存)和write(写入到主内存的变量)。
+	-->读：read(读取主存变量的值到工作内存)和load(赋值到工作内存的变量)
+	-->用：use(把工作内存的变量传递给执行引擎)
+
+	volatile：解决缓存对共享变量修改的可见性，保证新值能立即同步到主内存，且每次使用前都会从主内存刷新值。
+	synchronized:保证内存可见性和操作原子性，互斥锁
+	指令重排序：
+	内存屏障：
+		StoreLoad Barriers：确保Store1数据对其他处理器可见，先于Load2及所有后续装载指令的装载。会使该屏障之前的所有内存访问指令(存储和装载)完成之后，才执行该屏障之后的内存访问指令
+-------------------------------------------Java End-------------------------------------------
+
+-------------------------------------------Netty Start-------------------------------------------
+NIO基本概念：
+同步是指用户空间进程主动发起read/write调用，内核系统被动接受；
+阻塞是指需要等待内核IO操作彻底完成后，才返回到用户进程，执行用户操作；
+同步阻塞————普通的Socket连接都是；一个线程一个链接，不适合高并发
+同步非阻塞————不断发起read调用，如果内核数据未准备好直接返回；轮询操作消耗cpu
+IO多路复用————单个线程负责select/epoll调用所负责的成千上万Socket连接，当某个连接数据准备好了再发起read调用，因此需要将Socket连接提前注册到select/epoll可查询的列表中。他的优势在于同时处理很多链接，但本质上还是同步阻塞的。
+异步IO（AIO）————用户线程发起read调用后，立即返回做自己的事，等系统完成数据操作后通知。
+
+
+JAVA OIO————各种stream流操作都是阻塞的，read方法会等待操作完成；一个连接包含一个输入流和一个输出流
+JAVA NIO————read方法无数据时不会阻塞，采用通道和通道的多路复用技术实现；一个连接就用一个Channel表示；Selector可以查询多个Channel的IO事件就绪状态（可读可写网络连接完成）；
+
+
+NIO Buffer：
+-->capacity内存块容量，满了就无法写入，不是指内存字节数量，而是指写入对象的数量，一旦初始化就无法改变；
+-->position当前位置，随着数据读写而移动，读写切换时重置
+-->limit最大限制，读模式下
+
+总结一下，使用NIO Buffer的步骤如下:
+-->将数据写入到Buffer中；
+-->调用Buffer.flip()方法，将NIO Buffer转换为读模式；
+-->从Buffer中读取数据；
+-->调用 Buffer.clear()或Buffer.compact()方法，将Buffer转换为写模式；
+-->mark()和reset()方法成对使用，可以恢复对当前位置的操作，例如重复读的情况；
+
+NIO Channel：
+-->ServerSocketChannel核心方法有open()、close()、accept()、bind()、socket()、register()、configureBlocking()；
+-->SocketChannel核心方法有open()、connect()、read()、write()、close()、register()、configureBlocking()；
+-->继承了AbstractSelectableChannel的通道才可以支持多路复用模式；
+
+NIO Select：
+-->open方法建立一个Selector
+-->通过channel.register(selector,SelectionKey.OP)注册监听channel的操作类型
+-->select()方法阻塞轮询
+-->selectedKeys()方法来访问已选择键集合，然后迭代集合的每一个选择键元素
+-->判断key的类型，并通过key.channel()方法获取Channel，再对Channel进行操作
+
+
+select/poll：
+    -->bitmap数组，动态数组，链表。
+    -->2 次「遍历」文件描述符集合:内核态检测事件一次遍历，用户态查询可读可写事件一次遍历
+    -->2 次「拷贝」文件描述符集合：文件描述符结合拷贝到内核态一次，内核态拷贝全量的集合给用户态一次
+    -->因为都是全量拷贝，所以时间复杂度为 O(n)
+epoll：
+	-->红黑树来跟踪进程所有待检测的文件描述字,增删查一般时间复杂度是O(logn)
+	-->epoll使用事件驱动的机制，内核里维护了一个链表来记录就绪事件
+epoll_create打开epoll文件描述符，如果为－1，则说明出错了；从Linux 2.6.8开始，int参数被忽略，但必须传入大于0的数字
+epoll_ctl增加或者移除被epoll所监听的文件描述符
+epoll_wait用来等待发生在监听描述符上的事件。它会一直阻塞直到事件发生，另外注意的是，由于epoll_wait同步等待，有可能被信号中断，此时需要重新进行读或写操作
+水平触发
+	-->NioServerSocketChannel中，由于其工作在LT模式下，所以不需要做特殊处理，在处理完一个事件后直接从SelectionKey中移除该事件即可，如果有未读完的数据，下次轮询仍会获得该事件。
+边缘触发
+	-->而在EpollServerSocketChannel中，由于其工作在ET模式下，如果一次事件处理不把数据读完，需要手动地触发一次事件作为补偿，否则下次轮询将不会有触发的事件
+
+
+协议序列化解码LengthFieldBasedFrameDecoder
++---------------------------------------------------------------+
+| 魔数 2byte | 协议版本号 1byte | 序列化算法 1byte | 报文类型 1byte  |
++---------------------------------------------------------------+
+| 状态 1byte |        保留字段 4byte     |      数据长度 4byte     | 
++---------------------------------------------------------------+
+|                   数据内容 （长度不定）                          |
++---------------------------------------------------------------+
+
+DefaultChannelPipeline
+-->tail.writeAndFlush(msg)
+-->AbstractChannelHandlerContext.write方法
+
+
+ChannelOutboundBuffer链表结构
+flush 方法才最终将数据写入到 Socket 缓冲区
+
+ByteBuf:
+-->readerIndex() & writeIndex()
+-->markReaderIndex() & resetReaderIndex()标记读指针位置，当数据还没有一个完整的数据包，此时直接使用 resetReaderIndex() 重置 readerIndex 的位置
+-->copy() 会从原始的 ByteBuf 中拷贝所有信息，所有数据都是独立的，向 copy() 分配的 ByteBuf 中写数据不会影响原始的 ByteBuf
+
+doBind()方法
+-->initAndRegister()：创建、初始化、注册channel
+	-->NioServerSocketChannel构造器，调用jdk底层创建EPollSelectorProvider然后创建ServerSocketChannel(全局id，unsafe操作底层读写、pipeline)，并设置OP_ACCEPT和configBlocking。
+	-->设置参数和自定义属性到NioServerSocketChannelConfig，添加名为ServerBootstrapAcceptor的ChannelInitializer到pipeline中
+	-->调用JDK底层将Channel注册到Selector上
+	-->调用JDK底层进行端口绑定，并触发channelActive事件，把OP_ACCEPT事件注册到Channel的事件集合中
+
+FastThreadLocal
+	-->Java ThreadLocal是在Thread中一个Entry数组，key是ThreadLocal本身，value是放入的对象。Entry本身是WeakReference，同时set/get方法会清理key为null的对象，防止内存溢出。
+		但是线性探测法在数据密集的情况下，产生碰撞，查找的时间复杂度变成了O(n)效率不够高。
+	-->FastThreadLocal则避免了线性探测算法，在FastThreadLocal初始化的时候就分配了一个递增AtomicInteger值当做数组的index，采取以空间换时间的方法使时间复杂度变为O(1)。
+		采用Object数组，Object[0]存储的是FastThreadLocal的Set集合，从1开始直接存储对象。提供了继承方法，可以获取到父线程的参数。
+
+Recycler对象池
+-->Stack存在FastThreadLocal里，每个线程独享自己的Stack
+	-->DefaultHandle数组，存储当前线程的缓存对象。pop直接取栈顶对象。如果为空则通过scavenge()方法从从异线程的WeakOrderQueue中收割对象。如果转移后还为空，则直接new一个handler对象即可
+-->WeakOrderQueue 用于存储其他线程回收到当前线程所分配的对象，并且在合适的时机，为Stack提供收割对象。
+    -->每个Link默认存储16个handle对象数组，并指向下一个Link
+-->同线程回收对象直接push到Stack中即可，弱超过最大容量直接丢弃
+-->异线程回收对象，则直接放到当前线程的WeakOrderQueue中即可
+
+
+Netty任务HashedWheelTimer
+	-->TimerTask通过TimerThread轮询小根堆实现的TaskQueue执行堆顶的任务。
+	-->DelayedQueue延时队列，结合异步线程使用，提供了阻塞的take()方法，通常用作重试机制。
+	-->ScheduledThreadPoolExecutor
+	-->
+
+Netty任务的队列MpscQueue(多生产者单消费者)
+	-->环形数组可以复用内存，减少分配内存和释放内存带来的性能损耗。而且数组可以设置长度为2的次幂，直接通过位运算加快数组下标的定位速度
+	-->伪共享变量，防止不同的变量被分配到同一个CacheLine中，多线程更新不同的变量时在一个CacheLine中产生竞争
+	-->UNSAFE.putOrderedObject()方法将变量写入数组中，会有纳秒级的延迟，但是效率更高。在没有写入之后立刻读取需求的场景下可以使用
+-------------------------------------------Netty End-------------------------------------------
+
+-------------------------------------------Maven Start-------------------------------------------
+<optional>true</optional>
+不传递jar包依赖，根据实际情况自行选择即可
+
+<scope>provided</scope> 
+当我们用maven install生成最终的构件包ProjectABC.war后，在其下的WEB-INF/lib中，会包含我们被标注为scope=compile的构件的jar包，而不会包含我们被标注为scope=provided的构件的jar包。这也避免了此类构件当部署到目标容器后产生包依赖冲突。比如容器本身提供的servlet-api这种jar包可能会冲突。
+-------------------------------------------Maven End-------------------------------------------
+
+
+-------------------------------------------Dubbo Start-------------------------------------------
+2374540382@qq.com  密码：springcloud
+为什么dubbo不使用jdk的spi呢？jdk会一次性加载扩展点的所有实现类，耗时，没用上也会加载，浪费资源；没有IOC和AOP的支持，扩展点无法set注入其他扩展点。
+SPI约定：路径META-INF/dubbo/internal/xx.xxx.interfaceA；内容key(扩展名)=value(实现类)；
+
+ExtensionLoader.getExtensionLoader(Class<?> type)
+	-->new ExtensionLoader(Class<?> type)
+	  -->Class<T> type
+	  -->objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
+每个ExtensionLoader<Class>都有一个type和objectFactory，ExtensionFactory没有自己的objectFactory，初始化后会存在一个ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS 中；
+objectFactory为dubbo提供所有的IOC支持；
+
+ExtensionLoader.getAdaptiveExtension()
+@Adaptive注解在类上：默认编码实现了一个装饰器类，如AdaptiveExtensionFactory；
+@Adaptive注解在方法上：自动生成和编译了一个动态装饰器类，如Protocol$Adaptive；
+
+ExtensionLoader.getAdaptiveExtension()
+--createAdaptiveExtension()
+    --getAdaptiveExtensionClasses()
+	  --getExtensionClasses()
+	    --loadFile()
+	  	  --cachedAdaptiveClass
+	  	  --cachedWrapperClass
+	  	  --cachedActivates
+	  	  --cachedNames
+	  --createAdaptiveExtensionClass()
+	    --通过模板创建一个动态Adaptive装饰器类，如Protocol$Adaptive，code字符串，然后Compile编译；
+	--injectExtension()进入IOC的控制反转，实现动态注入
+
+-------------------------------------------Dubbo End-------------------------------------------
+
+
+unitest一款python开发的单元测试用例框架
+
+表格存储，timeline，多维检索，分词字符串类型模糊检索
+
+网关超时、ribbon超时、熔断超时、服务超时如何设置
+
+
+cutdownlatch和信号量的原理
+
+java8如何规避空指针
+
+Bigdecimal(double)丢失精度问题
+
+函数式接口  Function<T,R> apply addThen compose方法
+方法引用  对象::方法  类::静态方法  super::方法  this::方法
+Lambda表达式  延迟执行提升性能  匿名内部类的一种体现  
+
+Disruptor
+
+
+类图：
++表示public
+-表示private  
+#表示protected 
+~表示default,也就是包权限  
+_下划线表示static  
+斜体表示抽象 
+
+泛化（Generalization）, 实现（Realization），关联（Association)，聚合（Aggregation），组合(Composition)，依赖(Dependency)
+
+
+-------------------------------------------数据同步 Start-------------------------------------------
+
+es中一条数据是由mysql多个表数据组合成的（联表查询），但是binlog只针对某个表的数据操作，而ES的更新操作是delete + insert，这样导致根据binlog数据去更新es中doc的时候，会让其他表字段的数据消失了，这一种情况大家有遇到吗？
+该如何解决？
+
+业务涉及多表的情况下，监听dbrep的源库的数据写入消息，如果主表消息先到，副表消息后到，我理解是先插入主表数据到目标库，然后副表的消息根据外键更新目标库，是这样不？那如果副表消息先到，主表消息还没到这种情况该怎么处理呢？
+
+另外，如何去校验一次多表数据同步的完整性，可以给读服务使用了呢？是在哪个节点去触发数据完整性的校验的？
+
+基于binlog的，ROW方式，异步，组件研发和可靠性保证要求较高；
+业务端同步写mysql和es/缓存，写一次失败则插入未完成消息表，交给Work去扫描处理；
+
+实时性要求高的还是走mysql
+
+es两种集群双写，一种是热点数据，同步写，定期归档，只保留近期的订单数据满足大部分查询要求；另一种是全量数据跟mysql同步，异步写，支持少量历史数据查询或者服务内部查询要求；
+-------------------------------------------数据同步 Start-------------------------------------------
+
+
+
+-------------------------------------------ShardingSphere Start-------------------------------------------
+解析引擎：解析规则（抽象语法树）、提取规则、填充规则、优化规则
+路由引擎：分片路由、广播路由（不携带分配键的sql）
+改写引擎：逻辑库/表指向物理库表，缺失字段补充，分布式下的均值不能用(avg1+avg2+avg3)应该改写为(sum1+sum2+sum3)/(count1+count2+count3)
+执行引擎：
+	内存限制模式————执行sql操作多实例多表时，对每张表创建一个新的数据库连接，多线程并行处理执行效率最大化，且防止内存溢出或垃圾回收频繁，流式归并（记录游标，需要使用结果的时候再根据游标加载），
+	连接限制模式————严格控制数据库连接数，真对每个库的操作创建一个连接，防止一次请求占用过多数据库连接，但是一个连接串行处理，需要将当前查询结果集加在至内存
+	自动化执行引擎————根据配置的maxConnectionSizePerQuery自动选择连接模式，并且在下一次执行的准备阶段就原子性的获取本次SQL请求的全部数据库连接（仅在内存限制模式下，例如：AB查询都对应一个库的两个分表，A查询占了1个连接，B查询占了1个连接，数据库最大2个连接，就会形成死锁）
+
+归并引擎：排序归并、分组归并、聚合归并、分页归并
+全局id是怎么生成的，每个表起始id加步长
+
+
+
+老库和分库分表的库怎么迁移数据，不停机，id-全局id映射的问题，存量（作业）、增量（管道）
+双写，动态数据源
+如果sql中没有切分键的话，在持久层dao里加一个切面，补充where条件，比如说订单表里有orderNo和userId，按userId切分表，但是sql没有，则需要补充sql的条件加上userId，userId跟orderNo的映射关系就需要缓存或者其他存储。或者是在设计的时候就考虑到这个问题，比方说订单号里包含了切分键userId
+
+时间分库表（按年分库，按月分表）：分页查询历史记录时通常会限制一次查询只能查询一年内的，存在某个月的订单量激增的问题，如双十一；
+订单号分库表：一个用户的订单分散在不同的库表中，不利于c端的操作查询；
+userId分库表：业界通用做法，比如按userId末3位取摸进行分库表，订单号中包含userId末3位，既支持用户维度的查询又支持订单号维度的查询；
+userId分库+orderNo分表：
+年份分库+userId分表：适用于年订单量相对稳定的业务场景
+
+ShardingPreparedStatement
+--executeQuery()
+  --shard()
+  --initPreparedStatementExecutor()
+  --MergeEngineFactory.newInstance()
+  --getResultSet(mergeEngine)
+
+StandardRoutingEngine
+--route()
+  --route0
+    --routeDataSources()	若没有shardingcolumn对应的shardingvalue，则进行广播，获取所有getActualDatasourceNames
+    --routeTables()	若没有shardingcolumn对应的shardingvalue，则进行广播，获取所有getActualTableNames
+-------------------------------------------ShardingSphere End-------------------------------------------
+
+
+-------------------------------------------Mysql End-------------------------------------------
+1.查看当前会话隔离级别
+select @@tx_isolation;
+2.查看系统当前隔离级别
+select @@global.tx_isolation;
+3.设置当前会话隔离级别
+set session transaction isolatin level repeatable read;
+4.设置系统当前隔离级别
+set global transaction isolation level repeatable read;
+5.命令行，开始事务时
+set autocommit=off 或者 start transaction
+
+session A 					session B
+start transaction;
+detele from t where id<3;	
+							insert into t values (2,1);
+
+
+#####  REPEATABLE READ 可重复读 ##### 
+
+
+##### READ COMMITTED 读已提交 #####
+没有gap间隙锁，只会有记录锁，会产生幻读
+binlog不能采用STATEMENT,建议使用ROW的模式。
+
+
+Mmap内存映射文件
+Jdk mappedByteBuffer
+
+堆内，Caffeine/guava
+堆外，OHC
+
+Mysql
+ES：商家端、客服端
+HBASE：订单快照、操作日志
+-------------------------------------------Mysql End-------------------------------------------
+
+

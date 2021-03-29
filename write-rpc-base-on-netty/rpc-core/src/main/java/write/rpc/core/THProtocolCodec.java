@@ -44,7 +44,7 @@ public class THProtocolCodec extends ByteToMessageCodec {
         header.setRequestId(requestId);
         IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toString(serialization));
         THRpcRequest thRpcRequestBody = rpcSerialization.deserialize(data,THRpcRequest.class);
-        THProtocol<THRpcRequest> request = new THProtocol<>();
+        THProtocolMsg<THRpcRequest> request = new THProtocolMsg<>();
         request.setHeader(header);
         request.setBody(thRpcRequestBody);
         out.add(request);

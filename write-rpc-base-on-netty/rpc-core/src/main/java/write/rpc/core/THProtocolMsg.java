@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * TH协议
  */
-public class THProtocol<T> implements Serializable {
+public class THProtocolMsg<T> implements Serializable {
 
     THMsgHeader header;
 
