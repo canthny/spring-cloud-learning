@@ -1,4 +1,4 @@
-package write.rpc.core;
+package write.rpc.core.factory;
 
 import java.util.HashMap;
 import java.util.Map;

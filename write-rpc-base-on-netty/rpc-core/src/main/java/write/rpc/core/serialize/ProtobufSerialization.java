@@ -1,4 +1,4 @@
-package write.rpc.core;
+package write.rpc.core.serialize;
 
 import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtobufIOUtil;

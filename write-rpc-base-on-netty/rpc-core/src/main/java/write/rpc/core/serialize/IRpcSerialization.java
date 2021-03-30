@@ -1,4 +1,4 @@
-package write.rpc.core;
+package write.rpc.core.serialize;
 
 public interface IRpcSerialization {
 

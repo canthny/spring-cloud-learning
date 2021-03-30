@@ -1,7 +1,9 @@
-package write.rpc.core;
+package write.rpc.core.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import write.rpc.core.protocol.THProtocolMsg;
+import write.rpc.core.protocol.THRpcRequest;
 
 import java.util.concurrent.*;
 
@@ -17,7 +19,7 @@ public class THRpcServerHandler extends SimpleChannelInboundHandler<THProtocolMs
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, THProtocolMsg<THRpcRequest> msg) throws Exception {
         if(msg!=null && msg.getBody()!=null){
-            pool.execute(new BusiTask(ctx, msg.getBody()));
+            pool.execute(new BusiTask(ctx, msg));
         }else{
             //donothing
         }

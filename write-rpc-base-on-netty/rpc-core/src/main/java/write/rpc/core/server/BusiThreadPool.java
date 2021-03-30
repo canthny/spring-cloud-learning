@@ -1,4 +1,4 @@
-package write.rpc.core;
+package write.rpc.core.server;
 
 import java.util.concurrent.ThreadPoolExecutor;
 

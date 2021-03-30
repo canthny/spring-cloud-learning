@@ -1,4 +1,4 @@
-package write.rpc.core;
+package write.rpc.core.protocol;
 
 import java.io.Serializable;
 

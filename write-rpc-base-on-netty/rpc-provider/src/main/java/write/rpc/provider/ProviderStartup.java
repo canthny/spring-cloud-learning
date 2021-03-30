@@ -7,6 +7,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import write.rpc.core.factory.BeanFactory;
+import write.rpc.core.protocol.THProtocolCodec;
+import write.rpc.core.server.THRpcServerHandler;
 
 import java.net.InetSocketAddress;
 
@@ -18,6 +21,7 @@ public class ProviderStartup {
     private static Integer port = 8888;
 
     public static void main(String[] args) {
+        BeanFactory.put("userService",new UserServiceImpl());
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup();
         try{
@@ -27,7 +31,8 @@ public class ProviderStartup {
                     .childHandler(new ChannelInitializer<SocketChannel>(){
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-//                            ch.pipeline().addLast();
+                            ch.pipeline().addLast(new THProtocolCodec());
+                            ch.pipeline().addLast(new THRpcServerHandler());
                         }
                     });
             ChannelFuture f = b.bind(port).sync();

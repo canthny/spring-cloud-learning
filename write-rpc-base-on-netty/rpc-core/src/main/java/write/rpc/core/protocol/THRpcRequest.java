@@ -1,4 +1,4 @@
-package write.rpc.core;
+package write.rpc.core.protocol;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -14,6 +14,8 @@ public class THRpcRequest implements Serializable {
     private Object[] params;
 
     private Class<?>[] parameterTypes;
+
+    private String methodName;
 
     public String getServiceId() {
         return serviceId;
@@ -55,6 +57,14 @@ public class THRpcRequest implements Serializable {
         this.parameterTypes = parameterTypes;
     }
 
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
     @Override
     public String toString() {
         return "THRpcRequest{" +
@@ -63,6 +73,7 @@ public class THRpcRequest implements Serializable {
                 ", interfaceName='" + interfaceName + '\'' +
                 ", params=" + Arrays.toString(params) +
                 ", parameterTypes=" + Arrays.toString(parameterTypes) +
+                ", methodName='" + methodName + '\'' +
                 '}';
     }
 }

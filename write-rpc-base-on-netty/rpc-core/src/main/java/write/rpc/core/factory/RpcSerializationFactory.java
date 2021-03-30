@@ -1,4 +1,7 @@
-package write.rpc.core;
+package write.rpc.core.factory;
+
+import write.rpc.core.serialize.IRpcSerialization;
+import write.rpc.core.serialize.ProtobufSerialization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +11,7 @@ import java.util.Map;
  */
 public class RpcSerializationFactory {
 
-    private static Map<String,IRpcSerialization> serializationMap = new HashMap<>();
+    private static Map<String, IRpcSerialization> serializationMap = new HashMap<>();
 
     static {
         serializationMap.put("protobuf",new ProtobufSerialization());

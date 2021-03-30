@@ -1,4 +1,4 @@
-package write.rpc.core;
+package write.rpc.core.protocol;
 
 /**
  * +---------------------------------------------------------------+
@@ -19,7 +19,7 @@ public class THMsgHeader {
 
     private byte status;
 
-    private byte[] extension;
+    private byte[] extension = new byte[4];
 
     private long requestId;
 
