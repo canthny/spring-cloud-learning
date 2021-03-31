@@ -24,6 +24,7 @@ public class BusiTask implements Runnable{
 
     @Override
     public void run() {
+        long requestId = thProtocolMsg.getHeader().getRequestId();
         THRpcRequest thRpcRequest = thProtocolMsg.getBody();
         String serviceId = thRpcRequest.getServiceId();
         Object object = BeanFactory.get(serviceId);
@@ -46,10 +47,11 @@ public class BusiTask implements Runnable{
         THProtocolMsg<THRpcResponse> response = new THProtocolMsg<>();
         THMsgHeader header = new THMsgHeader();
         header.setMagicData(ProtocolConstants.MAGIC_DATA);
-        header.setVersion(ProtocolConstants.VERSION.getBytes()[0]);
-        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION.getBytes()[0]);
-        header.setRequestType(ProtocolConstants.REQUEST_TYPE_RETURN.getBytes()[0]);
-        header.setRequestId(System.currentTimeMillis());
+        header.setVersion(ProtocolConstants.VERSION);
+        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION);
+        header.setRequestType(ProtocolConstants.REQUEST_TYPE_RETURN);
+        header.setRequestId(requestId);
+        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION);
         THRpcResponse rpcResponse = new THRpcResponse();
         rpcResponse.setObject(resObj);
         response.setBody(rpcResponse);

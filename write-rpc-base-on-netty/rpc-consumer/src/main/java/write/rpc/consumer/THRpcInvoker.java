@@ -1,28 +1,24 @@
-package write.rpc.core.client;
+package write.rpc.consumer;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.*;
+import io.netty.util.concurrent.DefaultPromise;
 import write.rpc.core.ProtocolConstants;
-import write.rpc.core.protocol.THMsgHeader;
-import write.rpc.core.protocol.THProtocolCodec;
-import write.rpc.core.protocol.THProtocolMsg;
-import write.rpc.core.protocol.THRpcRequest;
+import write.rpc.core.client.ReqFuture;
+import write.rpc.core.client.RequestHolder;
+import write.rpc.core.protocol.*;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 
-public class THRpcRemoteInvoker<T> implements InvocationHandler {
+public class THRpcInvoker<T> implements InvocationHandler {
 
     private Class<T> mapperInterface;
 
     private String serviceId;
 
-    public THRpcRemoteInvoker(String serviceId,Class<T> mapperInterface){
+    public THRpcInvoker(String serviceId, Class<T> mapperInterface){
         this.serviceId = serviceId;
         this.mapperInterface = mapperInterface;
     }
@@ -33,17 +29,14 @@ public class THRpcRemoteInvoker<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        SocketAddress address = new InetSocketAddress("localhost",8988);
-        Bootstrap bootstrap = new Bootstrap();
-        ChannelFuture future = bootstrap.group(new NioEventLoopGroup()).channel(NioSocketChannel.class).handler(new THProtocolCodec()).connect(address).sync();
         THProtocolMsg<THRpcRequest> protocolMsg = new THProtocolMsg<>();
         THMsgHeader header = new THMsgHeader();
-        long requestId = System.currentTimeMillis();
+        long requestId = RequestHolder.getRequestId();
         header.setMagicData(ProtocolConstants.MAGIC_DATA);
-        header.setVersion(ProtocolConstants.VERSION.getBytes()[0]);
+        header.setVersion(ProtocolConstants.VERSION);
         header.setRequestId(requestId);
-        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION.getBytes()[0]);
-        header.setRequestType(ProtocolConstants.REQUEST_TYPE_GET.getBytes()[0]);
+        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION);
+        header.setRequestType(ProtocolConstants.REQUEST_TYPE_GET);
         header.setStatus((byte) 0x1);
         protocolMsg.setHeader(header);
         THRpcRequest request = new THRpcRequest();
@@ -54,7 +47,10 @@ public class THRpcRemoteInvoker<T> implements InvocationHandler {
         request.setParameterTypes(method.getParameterTypes());
         request.setParams(args);
         protocolMsg.setBody(request);
-        future.channel().writeAndFlush(protocolMsg);
-        return null;
+        ReqFuture<THRpcResponse> future = new ReqFuture<>(new DefaultPromise<>(new DefaultEventLoop()), ProtocolConstants.DEFAULT_TIMEOUT);
+        RequestHolder.REQ_FUTURE_MAP.put(requestId, future);
+        THRpcRemoteCaller rpcConsumer = new THRpcRemoteCaller();
+        rpcConsumer.sendRequest(protocolMsg);
+        return future.getPromise().get(future.getTimeout(), TimeUnit.MILLISECONDS).getObject();
     }
 }

@@ -9,6 +9,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import write.rpc.core.factory.BeanFactory;
 import write.rpc.core.protocol.THProtocolCodec;
+import write.rpc.core.protocol.THProtocolDecoder;
+import write.rpc.core.protocol.THProtocolEncoder;
 import write.rpc.core.server.THRpcServerHandler;
 
 import java.net.InetSocketAddress;
@@ -31,8 +33,9 @@ public class ProviderStartup {
                     .childHandler(new ChannelInitializer<SocketChannel>(){
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new THProtocolCodec());
+                            ch.pipeline().addLast(new THProtocolDecoder());
                             ch.pipeline().addLast(new THRpcServerHandler());
+                            ch.pipeline().addLast(new THProtocolEncoder());
                         }
                     });
             ChannelFuture f = b.bind(port).sync();
@@ -40,7 +43,9 @@ public class ProviderStartup {
             f.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
+        } catch (Exception e){
+            e.printStackTrace();
+        }  finally {
             //优雅退出，释放线程池资源
             boss.shutdownGracefully();
             worker.shutdownGracefully();

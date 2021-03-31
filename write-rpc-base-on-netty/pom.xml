@@ -35,6 +35,11 @@
             <artifactId>redisson</artifactId>
             <version>3.5.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.34</version>
+        </dependency>
     </dependencies>
 
 </project>

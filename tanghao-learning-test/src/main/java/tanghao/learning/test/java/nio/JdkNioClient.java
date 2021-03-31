@@ -16,7 +16,7 @@ import java.nio.channels.SocketChannel;
 public class JdkNioClient {
 
     public static void main(String[] args) throws IOException {
-        SocketAddress address = new InetSocketAddress("localhost",8988);
+        SocketAddress address = new InetSocketAddress("localhost",8888);
         SocketChannel client = SocketChannel.open(address);
         ByteBuffer buffer = ByteBuffer.wrap("client demo in".getBytes());
         client.write(buffer);
