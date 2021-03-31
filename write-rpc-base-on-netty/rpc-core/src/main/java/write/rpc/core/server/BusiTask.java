@@ -48,13 +48,13 @@ public class BusiTask implements Runnable{
         THMsgHeader header = new THMsgHeader();
         header.setMagicData(ProtocolConstants.MAGIC_DATA);
         header.setVersion(ProtocolConstants.VERSION);
-        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION);
+        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION_PROTOBUF);
         header.setRequestType(ProtocolConstants.REQUEST_TYPE_RETURN);
         header.setRequestId(requestId);
-        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION);
         THRpcResponse rpcResponse = new THRpcResponse();
         rpcResponse.setObject(resObj);
         response.setBody(rpcResponse);
+        response.setHeader(header);
         channelHandlerContext.writeAndFlush(response);
     }
 }

@@ -7,21 +7,17 @@ import write.rpc.core.ProtocolConstants;
 import write.rpc.core.factory.RpcSerializationFactory;
 import write.rpc.core.serialize.IRpcSerialization;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
-public class THProtocolCodec extends ByteToMessageCodec {
+public class THProtocolCodec extends ByteToMessageCodec<THProtocolMsg<Object>> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) {
+    protected void encode(ChannelHandlerContext ctx, THProtocolMsg<Object> msg, ByteBuf out) {
         if(!(msg instanceof THProtocolMsg)){
             System.out.println("unknow msg type");
             return ;
         }
-        THProtocolMsg protocolMsg = (THProtocolMsg)msg;
-        THMsgHeader header = protocolMsg.getHeader();
+        THMsgHeader header = msg.getHeader();
         out.writeShort(header.getMagicData());
         out.writeByte(header.getVersion());
         out.writeByte(header.getSerialization());
@@ -29,18 +25,18 @@ public class THProtocolCodec extends ByteToMessageCodec {
         out.writeByte(header.getStatus());
         out.writeBytes(header.getExtension());
         out.writeLong(header.getRequestId());
-        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toString(header.getSerialization()));
-        Object bodyObj = protocolMsg.getBody();
-        byte[] body;
+        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toUnsignedInt(header.getSerialization()));
+        Object bodyObj = msg.getBody();
+        byte[] data;
         if(bodyObj instanceof THRpcRequest){
-            body = rpcSerialization.serialize((THRpcRequest)protocolMsg.getBody(),THRpcRequest.class);
+            data = rpcSerialization.serialize((THRpcRequest)msg.getBody(),THRpcRequest.class);
         }else if(bodyObj instanceof THRpcResponse){
-            body = rpcSerialization.serialize((THRpcResponse)protocolMsg.getBody(),THRpcResponse.class);
+            data = rpcSerialization.serialize((THRpcResponse)msg.getBody(),THRpcResponse.class);
         }else{
-            body = null;
+            data = null;
         }
-        out.writeInt(body==null?0:body.length);
-        out.writeBytes(body);
+        out.writeInt(data==null?0:data.length);
+        out.writeBytes(data);
     }
 
     @Override
@@ -73,7 +69,7 @@ public class THProtocolCodec extends ByteToMessageCodec {
         header.setDataLength(dataLength);
         header.setRequestId(requestId);
         header.setStatus((byte)0x1);
-        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toString(serialization));
+        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toUnsignedInt(serialization));
         THProtocolMsg msg = new THProtocolMsg();
         if(ProtocolConstants.REQUEST_TYPE_GET==requestType){
             THRpcRequest thRpcRequest = rpcSerialization.deserialize(data,THRpcRequest.class);

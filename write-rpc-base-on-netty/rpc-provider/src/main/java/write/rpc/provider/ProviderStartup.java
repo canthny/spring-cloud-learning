@@ -33,9 +33,8 @@ public class ProviderStartup {
                     .childHandler(new ChannelInitializer<SocketChannel>(){
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new THProtocolDecoder());
+                            ch.pipeline().addLast(new THProtocolCodec());
                             ch.pipeline().addLast(new THRpcServerHandler());
-                            ch.pipeline().addLast(new THProtocolEncoder());
                         }
                     });
             ChannelFuture f = b.bind(port).sync();

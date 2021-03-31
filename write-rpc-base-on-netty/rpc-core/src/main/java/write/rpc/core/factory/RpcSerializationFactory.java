@@ -1,5 +1,6 @@
 package write.rpc.core.factory;
 
+import write.rpc.core.ProtocolConstants;
 import write.rpc.core.serialize.IRpcSerialization;
 import write.rpc.core.serialize.ProtobufSerialization;
 
@@ -11,13 +12,13 @@ import java.util.Map;
  */
 public class RpcSerializationFactory {
 
-    private static Map<String, IRpcSerialization> serializationMap = new HashMap<>();
+    private static Map<Integer, IRpcSerialization> serializationMap = new HashMap<>();
 
     static {
-        serializationMap.put("protobuf",new ProtobufSerialization());
+        serializationMap.put((int)ProtocolConstants.DEFAULT_SERIALIZATION_PROTOBUF,new ProtobufSerialization());
     }
 
-    public static IRpcSerialization getBySerialization(String serialization){
+    public static IRpcSerialization getBySerialization(Integer serialization){
         return serializationMap.get(serialization);
     }
 }

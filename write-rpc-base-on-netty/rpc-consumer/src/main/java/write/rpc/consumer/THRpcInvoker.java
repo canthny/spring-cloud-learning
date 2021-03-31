@@ -35,9 +35,9 @@ public class THRpcInvoker<T> implements InvocationHandler {
         header.setMagicData(ProtocolConstants.MAGIC_DATA);
         header.setVersion(ProtocolConstants.VERSION);
         header.setRequestId(requestId);
-        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION);
+        header.setSerialization(ProtocolConstants.DEFAULT_SERIALIZATION_PROTOBUF);
         header.setRequestType(ProtocolConstants.REQUEST_TYPE_GET);
-        header.setStatus((byte) 0x1);
+        header.setStatus(ProtocolConstants.STATUS);
         protocolMsg.setHeader(header);
         THRpcRequest request = new THRpcRequest();
         request.setServiceId(serviceId);

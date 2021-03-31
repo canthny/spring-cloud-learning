@@ -13,8 +13,7 @@ public class THProtocolEncoder extends MessageToByteEncoder<THProtocolMsg<Object
             System.out.println("unknow msg type");
             return ;
         }
-        THProtocolMsg protocolMsg = (THProtocolMsg)msg;
-        THMsgHeader header = protocolMsg.getHeader();
+        THMsgHeader header = msg.getHeader();
         out.writeShort(header.getMagicData());
         out.writeByte(header.getVersion());
         out.writeByte(header.getSerialization());
@@ -22,17 +21,17 @@ public class THProtocolEncoder extends MessageToByteEncoder<THProtocolMsg<Object
         out.writeByte(header.getStatus());
         out.writeBytes(header.getExtension());
         out.writeLong(header.getRequestId());
-        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toString(header.getSerialization()));
-        Object bodyObj = protocolMsg.getBody();
-        byte[] body;
+        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toUnsignedInt(header.getSerialization()));
+        Object bodyObj = msg.getBody();
+        byte[] data;
         if(bodyObj instanceof THRpcRequest){
-            body = rpcSerialization.serialize((THRpcRequest)protocolMsg.getBody(),THRpcRequest.class);
+            data = rpcSerialization.serialize((THRpcRequest)msg.getBody(),THRpcRequest.class);
         }else if(bodyObj instanceof THRpcResponse){
-            body = rpcSerialization.serialize((THRpcResponse)protocolMsg.getBody(),THRpcResponse.class);
+            data = rpcSerialization.serialize((THRpcResponse)msg.getBody(),THRpcResponse.class);
         }else{
-            body = null;
+            data = null;
         }
-        out.writeInt(body==null?0:body.length);
-        out.writeBytes(body);
+        out.writeInt(data==null?0:data.length);
+        out.writeBytes(data);
     }
 }

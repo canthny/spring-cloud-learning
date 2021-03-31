@@ -40,7 +40,7 @@ public class THProtocolDecoder extends ByteToMessageDecoder {
         header.setDataLength(dataLength);
         header.setRequestId(requestId);
         header.setStatus((byte)0x1);
-        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toString(serialization));
+        IRpcSerialization rpcSerialization = RpcSerializationFactory.getBySerialization(Byte.toUnsignedInt(serialization));
         THProtocolMsg msg = new THProtocolMsg();
         if(ProtocolConstants.REQUEST_TYPE_GET==requestType){
             THRpcRequest thRpcRequest = rpcSerialization.deserialize(data,THRpcRequest.class);

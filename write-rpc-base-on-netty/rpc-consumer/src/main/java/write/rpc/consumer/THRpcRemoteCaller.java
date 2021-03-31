@@ -26,8 +26,7 @@ public class THRpcRemoteCaller {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline()
-                                .addLast(new THProtocolEncoder())
-                                .addLast(new THProtocolDecoder())
+                                .addLast(new THProtocolCodec())
                                 .addLast(new THRpcClientHandler());
                     }
                 });
