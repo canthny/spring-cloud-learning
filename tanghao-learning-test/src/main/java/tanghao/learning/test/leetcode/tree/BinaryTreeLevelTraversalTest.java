@@ -8,26 +8,26 @@ import java.util.Queue;
 public class BinaryTreeLevelTraversalTest {
 
     public static void main(String[] args) {
-        BinaryTreeNode handsonL = new BinaryTreeNode(5,null,null);
-        BinaryTreeNode handsonR = new BinaryTreeNode(3,null,null);
-        BinaryTreeNode sonL = new BinaryTreeNode(7,null,null);
-        BinaryTreeNode sonR = new BinaryTreeNode(6,handsonL,handsonR);
-        BinaryTreeNode root = new BinaryTreeNode(9,sonL,sonR);
+        TreeNode handsonL = new TreeNode(5,null,null);
+        TreeNode handsonR = new TreeNode(3,null,null);
+        TreeNode sonL = new TreeNode(7,null,null);
+        TreeNode sonR = new TreeNode(6,handsonL,handsonR);
+        TreeNode root = new TreeNode(9,sonL,sonR);
         System.out.println(traversal(root));
     }
 
-    private static List<List<Integer>> traversal(BinaryTreeNode root){
+    private static List<List<Integer>> traversal(TreeNode root){
         if(root == null){
             return null;
         }
-        Queue<BinaryTreeNode> queue = new LinkedList<>();
+        Queue<TreeNode> queue = new LinkedList<>();
         queue.add(root);
         List<List<Integer>> result = new ArrayList<>();
         while(queue.size()>0){
             List<Integer> tmp = new ArrayList<>();
             int qSize = queue.size();
             for(int i=0;i<qSize;i++){
-                BinaryTreeNode cur = queue.poll();
+                TreeNode cur = queue.poll();
                 tmp.add(cur.val);
                 if(cur.left!=null){
                     queue.add(cur.left);

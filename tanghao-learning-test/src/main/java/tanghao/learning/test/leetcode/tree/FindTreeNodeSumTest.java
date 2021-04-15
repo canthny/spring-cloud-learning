@@ -1,45 +1,40 @@
 package tanghao.learning.test.leetcode.tree;
 
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+
 
 public class FindTreeNodeSumTest {
 
-    private static int stackSum = 0;
-
+    static ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+    static ArrayList<Integer> path = new ArrayList();
 
     public static void main(String[] args) {
-
+        TreeNode handsonL = new TreeNode(5,null,null);
+        TreeNode handsonR = new TreeNode(3,null,null);
+        TreeNode sonL = new TreeNode(7,null,null);
+        TreeNode sonR = new TreeNode(6,handsonL,handsonR);
+        TreeNode root = new TreeNode(9,sonL,sonR);
+        getNodeEqualSum(root,16);
+        System.out.println(JSONObject.toJSONString(result));
     }
 
-    private static List<List<BinaryTreeNode>> getNodeEqualSum(BinaryTreeNode node,int sum){
-        Stack<BinaryTreeNode> stack = new Stack<>();
-        List<List<BinaryTreeNode>> res = new ArrayList<>();
-        List<BinaryTreeNode> temp = push(stack,node,sum);
-        if(!CollectionUtils.isEmpty(temp)){
-            res.add(temp);
-            return res;
-        }
-        while(!stack.empty()){
-            BinaryTreeNode curr = stack.peek();
-            if(curr.right==null&&curr.left==null){
-                stack.pop();
-            }
-        }
-        return null;
+    private static void getNodeEqualSum(TreeNode node, int sum){
+       if(node==null){
+           return;
+       }
+       if(node.right==null && node.left==null && sum== node.val){
+           path.add(node.val);
+           result.add(new ArrayList<>(path));
+           path.remove(path.size()-1);
+           return;
+       }
+       path.add(node.val);
+       getNodeEqualSum(node.left,sum- node.val);
+       getNodeEqualSum(node.right,sum- node.val);
+       path.remove(path.size()-1);
     }
 
-    private static  List<BinaryTreeNode> push(Stack<BinaryTreeNode> stack,BinaryTreeNode node,int sum){
-        stack.push(node);
-        stackSum+=node.val;
-        if(stackSum==sum){
-            while(!stack.empty()){
-                //输出栈中的所有元素到list，但是栈不能动，copy一个出来
-            }
-        }
-        return null;
-    }
 }
